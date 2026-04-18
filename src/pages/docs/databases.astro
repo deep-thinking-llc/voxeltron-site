@@ -1,0 +1,124 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Managed Databases" description="Provision and manage database containers alongside your apps.">
+  <h1>Managed Databases</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron provisions and manages database containers alongside your apps — no external services required.
+  </p>
+
+  <h2>Overview</h2>
+  <p>
+    Every app needs a database. Voxeltron runs fully managed database containers on the same host as your
+    applications, backed by persistent Docker volumes and automatic backups. Connection strings are injected
+    into your app environment automatically — zero configuration required.
+  </p>
+
+  <h2>Supported Databases</h2>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">PostgreSQL</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        The primary relational database. Full SQL support, JSONB columns, extensions, and excellent performance
+        for most workloads.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">MySQL</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Battle-tested relational database. Wide ecosystem compatibility for apps that require MySQL-specific
+        features or migrations from existing setups.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">Redis</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        In-memory data store for caching, session storage, job queues, and pub/sub messaging. Sub-millisecond
+        latency on the same host.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">MongoDB</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Document store for flexible schemas and unstructured data. Ideal for content management, event logs,
+        and rapid prototyping.
+      </p>
+    </div>
+  </div>
+
+  <h2>How It Works</h2>
+  <p>
+    Each database runs as a Docker container with a dedicated persistent volume for data durability. Voxeltron
+    handles the full lifecycle:
+  </p>
+  <ul>
+    <li><strong>Persistent volumes</strong> — Data survives container restarts and redeployments.</li>
+    <li><strong>Automatic backup scheduling</strong> — Daily backups run without intervention.</li>
+    <li><strong>Connection string injection</strong> — Credentials are injected as environment variables so your app connects without manual configuration.</li>
+    <li><strong>Network isolation</strong> — Databases are only reachable from your app containers on the internal Docker network.</li>
+  </ul>
+
+  <h2>Provisioning a Database</h2>
+  <p>Create a database from the CLI in one command:</p>
+  <pre><code style="font-family: var(--font-mono);">voxeltron db create postgres mydb</code></pre>
+  <p>Or for other engines:</p>
+  <pre><code style="font-family: var(--font-mono);">voxeltron db create mysql mydb
+voxeltron db create redis mycache
+voxeltron db create mongodb mydocs</code></pre>
+  <p>
+    You can also provision databases from the <strong>TUI Database view</strong> — navigate to the Databases
+    panel, select your engine, and give it a name.
+  </p>
+
+  <div class="callout info">
+    Databases are linked to your app automatically. The connection string appears in your app's environment
+    within seconds of provisioning.
+  </div>
+
+  <h2>Backups</h2>
+  <p>
+    Voxeltron runs automatic daily backups for every managed database. Backups are stored locally by default,
+    with optional upload to any S3-compatible storage for off-site durability.
+  </p>
+  <pre><code style="font-family: var(--font-mono);"># Configure S3 backup destination
+voxeltron db backup-config mydb \
+  --s3-bucket my-backups \
+  --s3-region us-east-1
+
+# Trigger a manual backup
+voxeltron db backup mydb
+
+# Restore from a specific backup
+voxeltron db restore mydb --backup 2026-02-25T03:00:00Z</code></pre>
+  <p>
+    Point-in-time restore is supported for PostgreSQL and MySQL, allowing you to recover to any moment within
+    the backup retention window.
+  </p>
+
+  <h2>Connection Strings</h2>
+  <p>
+    When you link a database to an app, Voxeltron automatically injects the connection string as the
+    <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">DATABASE_URL</code>
+    environment variable. Your app reads it at startup — no secrets files or manual wiring needed.
+  </p>
+  <pre><code style="font-family: var(--font-mono);"># Example injected variable
+DATABASE_URL=postgres://user:pass@voxeltron-db-mydb:5432/mydb</code></pre>
+
+  <div class="callout info">
+    Redis and MongoDB use <code>REDIS_URL</code> and <code>MONGODB_URL</code> respectively, following
+    the same automatic injection pattern.
+  </div>
+
+  <fragment slot="prev">
+    <a href="/docs/tui" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; Terminal UI (TUI)
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/ai" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      AI Integration &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

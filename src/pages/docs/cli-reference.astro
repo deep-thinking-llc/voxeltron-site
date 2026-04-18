@@ -1,0 +1,179 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="CLI Reference" description="Complete command reference for the Voxeltron TUI and daemon.">
+  <h1>CLI Reference</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Complete command reference for the <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">voxeltron</code> TUI client and <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">voxeltrond</code> daemon.
+  </p>
+
+  <h2 id="tui-commands" style="margin-top: 48px;">TUI Commands</h2>
+  <p style="color: var(--color-text-2); margin-bottom: 20px;">
+    The <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">voxeltron</code> binary is the interactive terminal client. Run it without arguments to launch the full TUI, or use subcommands for quick actions.
+  </p>
+
+  <div style="border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: var(--color-surface);">
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border); width: 40%;">Command</th>
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border);">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Launch the interactive TUI dashboard</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron connect &lt;host&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Connect to a remote daemon instance</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron deploy &lt;path&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Deploy an application from the given path</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron logs &lt;app&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Stream live logs for an application</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron db create &lt;engine&gt; &lt;name&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Create a managed database (postgres, mysql, redis, mongo)</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron db list</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">List all managed databases</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron plugin install &lt;path&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Install a plugin from a local path or URL</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron plugin list</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">List installed plugins and their status</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron backup create</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Create a backup of all apps and databases</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron secret set &lt;key&gt; &lt;value&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Set an environment secret for the current app</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltron version</td>
+          <td style="padding: 12px 16px; color: var(--color-text-2);">Show the TUI client version</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="daemon-commands" style="margin-top: 48px;">Daemon Commands</h2>
+  <p style="color: var(--color-text-2); margin-bottom: 20px;">
+    The <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">voxeltrond</code> binary is the server-side daemon. It manages containers, routing, databases, and the gRPC API.
+  </p>
+
+  <div style="border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: var(--color-surface);">
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border); width: 40%;">Command</th>
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border);">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltrond</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Start the daemon in the foreground</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltrond --config &lt;path&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Start with a custom configuration file path</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltrond migrate</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Run pending database migrations</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">voxeltrond version</td>
+          <td style="padding: 12px 16px; color: var(--color-text-2);">Show the daemon version</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 id="global-flags" style="margin-top: 48px;">Global Flags</h2>
+  <p style="color: var(--color-text-2); margin-bottom: 20px;">
+    These flags can be passed to any TUI command to override connection and configuration defaults.
+  </p>
+
+  <div style="border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr style="background: var(--color-surface);">
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border); width: 40%;">Flag</th>
+          <th style="text-align: left; padding: 12px 16px; font-size: 0.85rem; color: var(--color-muted); border-bottom: 1px solid var(--color-border);">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">--host &lt;address&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Daemon host address (default: <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">127.0.0.1</code>)</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">--port &lt;number&gt;</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Daemon gRPC port (default: <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">9090</code>)</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">--tls-skip-verify</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid var(--color-border); color: var(--color-text-2);">Skip TLS certificate verification (development only)</td>
+        </tr>
+        <tr>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); font-size: 0.9rem; color: var(--color-teal);">--config &lt;path&gt;</td>
+          <td style="padding: 12px 16px; color: var(--color-text-2);">Path to configuration file (default: <code style="font-family: var(--font-mono); background: var(--color-surface); padding: 2px 6px; border-radius: 4px;">~/.config/voxeltron/config.toml</code>)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info" style="margin-top: 32px;">
+    Use <code style="font-family: var(--font-mono);">voxeltron &lt;command&gt; --help</code> to see detailed usage for any subcommand. The TUI also provides inline help via the <kbd>?</kbd> key.
+  </div>
+
+  <h2 id="examples" style="margin-top: 48px;">Quick Examples</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0; font-size: 1rem;">Deploy an app</h3>
+      <pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0;"><code style="font-family: var(--font-mono); font-size: 0.85rem;">voxeltron deploy ./my-app</code></pre>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0; font-size: 1rem;">Connect to remote host</h3>
+      <pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0;"><code style="font-family: var(--font-mono); font-size: 0.85rem;">voxeltron connect 10.0.1.5 \
+  --port 9090</code></pre>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0; font-size: 1rem;">Create a database</h3>
+      <pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0;"><code style="font-family: var(--font-mono); font-size: 0.85rem;">voxeltron db create postgres mydb</code></pre>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0; font-size: 1rem;">Set a secret</h3>
+      <pre style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; overflow-x: auto; margin: 0;"><code style="font-family: var(--font-mono); font-size: 0.85rem;">voxeltron secret set \
+  DATABASE_URL "postgres://..."</code></pre>
+    </div>
+  </div>
+
+  <fragment slot="prev">
+    <a href="/docs/configuration" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; Configuration
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/plugins" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Plugin SDK &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

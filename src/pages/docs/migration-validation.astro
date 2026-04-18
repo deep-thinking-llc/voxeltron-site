@@ -1,0 +1,32 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Migration Validation" description="Post-import validation and rollback runbook for migration operations.">
+  <h1>Migration Validation</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Use this playbook after Coolify, Dokploy, or Docker Compose imports.
+  </p>
+
+  <h2>Required sequence</h2>
+  <ol>
+    <li>Capture pre-migration baseline</li>
+    <li>Run dry-run import and compare expected counts</li>
+    <li>Run apply import and verify object creation</li>
+    <li>Run post-import functional checks per deployment</li>
+    <li>Run rollback rehearsal in staging</li>
+    <li>Run security audit and sign-off</li>
+  </ol>
+
+  <h2>Security gate</h2>
+  <pre><code style="font-family: var(--font-mono);">./scripts/security-audit.sh</code></pre>
+
+  <h2>Sign-off fields</h2>
+  <ul>
+    <li>Source platform</li>
+    <li>Dry-run and apply results</li>
+    <li>Functional verification summary</li>
+    <li>Rollback rehearsal result</li>
+    <li>Residual risk and approver</li>
+  </ul>
+</DocsLayout>

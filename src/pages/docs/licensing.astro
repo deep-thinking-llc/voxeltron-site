@@ -1,0 +1,74 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Licensing" description="Understand Voxeltron's dual-license self-hosted model and permissive SDK surfaces.">
+  <h1>Licensing</h1>
+  <p style="color: var(--color-text-2); font-size: 1.05rem; margin-bottom: 28px;">
+    Voxeltron uses a dual-license model for the self-hosted core and a permissive license for the public API and SDK surfaces.
+  </p>
+
+  <div class="callout info">
+    The public self-hosted product and the commercial self-hosted product are intended to be the same core artifact under different license grants.
+  </div>
+
+  <h2>Self-Hosted Core</h2>
+  <p>The public repository is dual-licensed:</p>
+  <ul>
+    <li><code>LICENSE-AGPL</code>: GNU Affero General Public License v3.0 or later</li>
+    <li><code>LICENSE-COMMERCIAL.md</code>: commercial self-hosted terms for organizations that need non-AGPL usage</li>
+  </ul>
+
+  <h2>When to Use AGPL</h2>
+  <p>Use the AGPL path when you are comfortable with AGPL obligations, including the source-sharing requirement for modified networked deployments.</p>
+  <ul>
+    <li>You can self-host Voxeltron for personal or commercial workloads.</li>
+    <li>You can modify the source for your own use.</li>
+    <li>You can redistribute Voxeltron under AGPL-compatible terms.</li>
+  </ul>
+
+  <h2>When to Use Commercial Terms</h2>
+  <p>Use the commercial path when your organization needs non-AGPL self-hosted terms.</p>
+  <ul>
+    <li>Procurement or legal review requires a commercial agreement.</li>
+    <li>Your policy disallows AGPL dependencies.</li>
+    <li>You need the self-hosted product under a negotiated commercial grant.</li>
+  </ul>
+
+  <p>See the repo-local licensing guide for the canonical overview and contact route:</p>
+  <p><a href="https://github.com/jaikoo/voxeltron/blob/main/docs/licensing.md" target="_blank" rel="noopener">docs/licensing.md</a></p>
+
+  <h2>Plugin API and SDK Licensing</h2>
+  <p>The stable extension surfaces are intended to be permissively licensed so integrators can build against Voxeltron without inheriting daemon-license obligations.</p>
+  <ul>
+    <li><code>voxeltron-plugin-api</code>: Apache-2.0</li>
+    <li>In-repo SDK staging surfaces under <code>plugins/sdk/</code>: Apache-2.0</li>
+  </ul>
+
+  <div class="callout tip">
+    These SDK surfaces are still <code>0.x</code>. They are publishable and usable, but should be treated as pre-stable until the dedicated SDK repos are spun out.
+  </div>
+
+  <h2>Contribution Policy</h2>
+  <p>Voxeltron does not currently accept unsolicited external contributions. Invited contributions are expected to follow a CLA-backed model so dual-licensing remains viable.</p>
+
+  <h2>Three-Product Model</h2>
+  <ul>
+    <li><strong>Voxeltron (public)</strong>: AGPL public core for self-hosting</li>
+    <li><strong>Voxeltron (commercial)</strong>: the same self-hosted core under commercial terms</li>
+    <li><strong>Voxeltron Prime</strong>: private hardened build for internal Deep Thinking workloads</li>
+    <li><strong>Voxeltron Cloud</strong>: managed control plane and commercial cloud modules</li>
+  </ul>
+
+  <fragment slot="prev">
+    <a href="/docs/plugins" style="display: flex; align-items: center; gap: 8px; color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      ← Plugin System
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/support" style="display: flex; align-items: center; gap: 8px; color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Support →
+    </a>
+  </fragment>
+</DocsLayout>

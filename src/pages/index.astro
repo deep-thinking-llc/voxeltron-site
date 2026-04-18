@@ -1,0 +1,839 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="voxeltron — your infra team is a terminal">
+
+  <!-- ═══════════════════════════════ NAV ═════════════════════════════════ -->
+  <header class="nav-bar">
+    <div class="max-w-7xl mx-auto px-6 h-full flex items-center gap-8">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <img src="/favicon.svg" alt="voxeltron" class="w-7 h-7" style="border-radius: 4px;" />
+        <div class="flex flex-col" style="gap: 1px;">
+          <span style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-text); letter-spacing: -0.01em;">
+            voxeltron
+          </span>
+          <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--color-muted); letter-spacing: 0.04em;">
+            ボクセルトロン
+          </span>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 ml-6">
+        {[
+          ['#features', 'features'],
+          ['#ai-agent', 'ai agent'],
+          ['#pricing', 'pricing'],
+          ['/docs/getting-started', 'docs'],
+        ].map(([href, label]) => (
+          <a href={href} class="nav-link">{label}</a>
+        ))}
+      </nav>
+
+      <div class="ml-auto flex items-center gap-3">
+        <a href="https://github.com/jaikoo/voxeltron" target="_blank" rel="noopener" class="btn-bordered" style="padding: 7px 16px; font-size: 0.8rem;">
+          GitHub
+        </a>
+        <a href="/docs/getting-started" class="btn-solid" style="padding: 7px 20px; font-size: 0.8rem;">
+          Get Started
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════ HERO ════════════════════════════════ -->
+  <section class="relative flex flex-col items-center pt-[56px]" style="padding: 10rem 1.5rem 6rem;">
+    <div class="reveal max-w-4xl mx-auto flex flex-col items-center text-center" style="--delay: 0s;">
+
+      <!-- Product surface -->
+      <div class="product-surface mb-12">
+        <img src="/favicon.svg" alt="" style="width: 64px; height: 64px; border-radius: 4px;" />
+        <span style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); letter-spacing: 0.1em;">
+          VXT-001 / ボクセルトロン
+        </span>
+      </div>
+
+      <!-- Headline -->
+      <h1
+        style="
+          font-family: var(--font-display);
+          font-size: clamp(2.5rem, 7vw, 5rem);
+          font-weight: 700;
+          letter-spacing: -0.03em;
+          line-height: 1.05;
+          max-width: 800px;
+          color: var(--color-text);
+        "
+      >
+        your infra team<br />is a terminal.
+      </h1>
+
+      <!-- Subheadline -->
+      <p
+        style="
+          font-size: clamp(0.9rem, 2vw, 1.05rem);
+          color: var(--color-text-secondary);
+          max-width: 540px;
+          line-height: 1.75;
+          margin-top: 24px;
+          font-weight: 300;
+        "
+      >
+        voxeltron is a self-hosted PaaS with a built-in AI DevOps agent.
+        deploy apps, manage databases, monitor everything, and fix incidents
+        — all from your terminal. no browser panel. no DevOps hire needed.
+        built for indie devs and small teams who ship fast.
+      </p>
+
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-3 mt-10 justify-center">
+        <a href="/docs/getting-started" class="btn-solid" style="font-size: 0.875rem; padding: 12px 28px;">
+          Get Started — Free Forever
+        </a>
+        <a href="https://github.com/jaikoo/voxeltron" target="_blank" rel="noopener" class="btn-bordered" style="font-size: 0.875rem; padding: 12px 28px;">
+          View Source
+        </a>
+      </div>
+
+      <!-- Spec row -->
+      <div class="flex flex-wrap gap-8 mt-14 justify-center">
+        {[
+          { label: 'binary', value: '~30MB' },
+          { label: 'idle ram', value: '<80MB' },
+          { label: 'deploy downtime', value: '0s' },
+          { label: 'browsers needed', value: '0' },
+          { label: 'ai tools', value: '10' },
+          { label: 'languages', value: '12+' },
+        ].map((s) => (
+          <div class="flex flex-col items-center gap-1">
+            <span style="font-family: var(--font-mono); font-size: 1rem; font-weight: 500; color: var(--color-text);">{s.value}</span>
+            <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em;">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ INSTALL ═══════════════════════════ -->
+  <section style="padding: 6rem 1.5rem;">
+    <div class="max-w-3xl mx-auto reveal">
+      <div class="section-label mb-2">INSTALL インストール</div>
+      <p style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 24px; font-weight: 300;">
+        one command. sixty seconds. you're deploying.
+      </p>
+
+      <div class="terminal-window">
+        <div class="terminal-titlebar">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title">terminal — bash</span>
+        </div>
+        <div class="terminal-body" id="hero-terminal" style="min-height: 260px; position: relative;">
+        </div>
+      </div>
+
+      <p style="color: var(--color-muted); font-size: 0.75rem; margin-top: 16px; font-family: var(--font-mono);">
+        also available via homebrew, docker, or manual binary download
+      </p>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ WHY ══════════════════════════════ -->
+  <section style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal mb-16">
+        <div class="section-label mb-4">WHY VOXELTRON なぜ</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; max-width: 640px;">
+          you shouldn't need a platform team to have a platform.
+        </h2>
+        <p style="color: var(--color-text-secondary); margin-top: 12px; max-width: 520px; font-size: 0.9rem; line-height: 1.75; font-weight: 300;">
+          you're building something real — an AI startup, an indie SaaS, a side project
+          that's turning into a company. you need production infrastructure, but you
+          don't have a DevOps team. and you shouldn't have to become one.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-px" style="background: var(--color-border); border: 1px solid var(--color-border); border-radius: 4px;">
+        {[
+          {
+            title: 'the deploy-and-pray workflow',
+            body: "other self-hosted PaaS tools restart their proxy on every deploy. your users get 502s. your SLA becomes a suggestion. voxeltron uses Pingora to hot-swap routes — zero downtime, every time.",
+          },
+          {
+            title: 'a browser panel for production infra',
+            body: "your deployment tool runs a full web app exposed to the internet, with hundreds of npm dependencies and a monthly CVE subscription. voxeltron is a 30MB binary. the management interface is gRPC over TLS.",
+          },
+          {
+            title: "it's 3am and something is broken",
+            body: "you're the only engineer. you're ssh'd in, tailing logs, trying to remember the right docker command. voxeltron's AI agent already knows your logs, config, and deploy history. press ctrl+a, ask what's wrong.",
+          },
+          {
+            title: 'scaling without scaling your team',
+            body: "as you grow from 1 server to 10, you don't need to hire a DevOps engineer. voxeltron handles database provisioning, TLS certs, backups, monitoring, and alerting. you just ship features.",
+          },
+        ].map((card, i) => (
+          <div class="reveal p-8" style={`background: var(--color-surface-solid); animation-delay: ${i * 0.1}s;`}>
+            <h3 style="font-family: var(--font-display); font-size: 1rem; font-weight: 500; margin-bottom: 10px; color: var(--color-text);">
+              — {card.title}
+            </h3>
+            <p style="color: var(--color-text-secondary); font-size: 0.85rem; line-height: 1.75; font-weight: 300;">
+              {card.body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ FEATURES ══════════════════════════ -->
+  <section id="features" style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal mb-16">
+        <div class="section-label mb-4">FEATURES 機能</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; max-width: 560px;">
+          everything you need to run production. nothing you don't.
+        </h2>
+      </div>
+
+      <div class="spec-grid reveal">
+        {[
+          { label: 'DEPLOY', title: 'Zero-Downtime Deploys', body: 'Blue-green deployments with automatic rollback. Pingora hot-swaps routes without touching the proxy. Your users never see a 502.' },
+          { label: 'BUILD', title: 'Any Language, Zero Config', body: 'Nixpacks and Railpack auto-detect Node.js, Python, Go, Rust, Ruby, PHP, .NET, Java and more. Or just use a Dockerfile.' },
+          { label: 'DATABASES', title: 'Managed Databases', body: 'Provision Postgres, MySQL, Redis, or MongoDB in one command. Connection strings injected automatically. Backups on a schedule.' },
+          { label: 'TLS', title: 'Automatic HTTPS', body: "Let's Encrypt certificates, auto-renewed. HTTP-01 and DNS-01 challenges. Wildcard certs. HSTS by default. You never think about certs." },
+          { label: 'MONITORING', title: 'Metrics, Logs, Alerts', body: 'CPU, memory, disk, network sparklines in real-time. Full-text log search. Threshold alerts to Slack, email, or webhook.' },
+          { label: 'BACKUPS', title: 'Automated Backups', body: 'Native database dumps, compressed and encrypted. Store to S3, GCS, MinIO, Backblaze, or local disk. Cron scheduling with retention policies.' },
+          { label: 'SECRETS', title: 'Encrypted Secrets', body: 'AES-256-GCM encryption at rest. Zeroized memory. Never logged in plaintext. Optional Vault or OpenBao integration for teams.' },
+          { label: 'COMPOSE', title: 'Docker Compose Support', body: 'Deploy multi-service stacks with compose profiles. Smart diff updates — only redeploys what changed. Dependency resolution built in.' },
+          { label: 'PLUGINS', title: 'WASM + JS Plugin System', body: 'Extend voxeltron in Rust, Go, C (WASM) or JavaScript/TypeScript. Sandboxed, permission-gated, hot-reloadable. No daemon restarts.' },
+          { label: 'CI/CD', title: 'Webhook-Driven Builds', body: 'Push to GitHub, GitLab, or Gitea and voxeltron builds automatically. PR preview deployments. Branch-based environments.' },
+          { label: 'SECURITY', title: 'No Web Attack Surface', body: 'No browser UI means no XSS, no CSRF, no npm supply chain risk. Management is gRPC over mTLS. REST API is off by default.' },
+          { label: 'MIGRATION', title: 'Switch in Minutes', body: 'Import your existing setup from Coolify or Dokploy. Dry-run mode to preview changes. Rollback-friendly design.' },
+        ].map((f) => (
+          <div class="spec-cell">
+            <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 10px;">
+              {f.label}
+            </div>
+            <h3 style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 500; margin-bottom: 8px; color: var(--color-text);">
+              {f.title}
+            </h3>
+            <p style="color: var(--color-text-secondary); font-size: 0.8rem; line-height: 1.7; font-weight: 300;">
+              {f.body}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ AI AGENT ══════════════════════════ -->
+  <section id="ai-agent" style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal mb-16">
+        <div class="section-label mb-4">AI DEVOPS AGENT エージェント</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; max-width: 640px;">
+          like having a senior SRE on call. except it's in your terminal and it never sleeps.
+        </h2>
+        <p style="color: var(--color-text-secondary); margin-top: 12px; max-width: 540px; font-size: 0.9rem; line-height: 1.75; font-weight: 300;">
+          press ctrl+a in the TUI. the AI sees your logs, metrics, config, and deploy
+          history. it doesn't just tell you what's wrong — it fixes it, with your approval.
+          25 production-ready features across memory, reasoning, integrations, autonomous
+          operations, and team collaboration.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <!-- AI capabilities spec sheet -->
+        <div class="reveal">
+          <div style="border: 1px solid var(--color-border); border-radius: 4px;">
+            <!-- Tools -->
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border);">
+              <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">
+                10 BUILT-IN TOOLS ツール
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                {['query_logs', 'query_metrics', 'list_alerts', 'project_status', 'list_deployments', 'container_action', 'scale_service', 'rollback', 'create_backup', 'rotate_secret'].map((tool) => (
+                  <span class="badge">{tool}</span>
+                ))}
+              </div>
+            </div>
+
+            <!-- Skills -->
+            <div style="padding: 20px 24px; border-bottom: 1px solid var(--color-border);">
+              <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">
+                4 DIAGNOSTIC SKILLS スキル
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                {[
+                  ['health-check', '5-step service health assessment'],
+                  ['deployment-analysis', '6-step regression and performance analysis'],
+                  ['log-investigation', '7-step error pattern correlation and RCA'],
+                  ['cost-optimizer', '4-step resource rightsizing'],
+                ].map(([name, desc]) => (
+                  <div style="display: flex; gap: 12px; align-items: baseline;">
+                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text); white-space: nowrap;">{name}</span>
+                    <span style="font-size: 0.75rem; color: var(--color-muted);">{desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <!-- Runbooks -->
+            <div style="padding: 20px 24px;">
+              <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px;">
+                3 AUTOMATED RUNBOOKS ランブック
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 6px;">
+                {[
+                  ['disk-cleanup', 'approval gates, safe deletion'],
+                  ['restart-loop-detection', 'detect and resolve crash loops'],
+                  ['certificate-renewal', 'proactive renewal with verification'],
+                ].map(([name, desc]) => (
+                  <div style="display: flex; gap: 12px; align-items: baseline;">
+                    <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-text); white-space: nowrap;">{name}</span>
+                    <span style="font-size: 0.75rem; color: var(--color-muted);">{desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI feature phases -->
+        <div class="reveal">
+          <div style="border: 1px solid var(--color-border); border-radius: 4px; padding: 0 24px;">
+            {[
+              {
+                phase: 'memory',
+                title: 'It remembers.',
+                desc: "Vector search over past incidents, knowledge graph of service dependencies, context scoping from conversation to organization level. It learns from every outage.",
+              },
+              {
+                phase: 'reasoning',
+                title: 'It thinks.',
+                desc: "Chain-of-thought reasoning, hypothesis generation and testing, automated root cause analysis with fault trees. It doesn't guess — it reasons through the problem.",
+              },
+              {
+                phase: 'integrations',
+                title: 'It connects.',
+                desc: "PagerDuty, Slack, Datadog, GitHub, Jira — bidirectional sync. Create tickets, update incidents, pull metrics, comment on PRs. All from the terminal.",
+              },
+              {
+                phase: 'autonomous',
+                title: 'It acts.',
+                desc: "Anomaly detection, predictive alerting, auto-remediation with approval gates. It notices the disk filling up before you do and cleans it up — after asking permission.",
+              },
+              {
+                phase: 'collaboration',
+                title: 'It shares.',
+                desc: "Multi-user incident rooms with real-time chat, RBAC, automated post-mortem generation, and a shared knowledge base. Your whole team benefits from every incident.",
+              },
+            ].map((item) => (
+              <div class="spec-row" style="padding: 18px 0; flex-direction: column; align-items: flex-start; gap: 6px;">
+                <div style="display: flex; gap: 10px; align-items: baseline;">
+                  <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em;">{item.phase}</span>
+                  <span style="font-family: var(--font-display); font-size: 0.95rem; font-weight: 500; color: var(--color-text);">{item.title}</span>
+                </div>
+                <p style="color: var(--color-text-secondary); font-size: 0.8rem; line-height: 1.7; font-weight: 300; margin: 0;">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ TUI DEMO ══════════════════════════ -->
+  <section style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+        <div class="reveal">
+          <div class="section-label mb-4">TERMINAL UI ターミナル</div>
+          <h2 style="font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700; margin-bottom: 20px;">
+            everything, in one place, over SSH.
+          </h2>
+          <p style="color: var(--color-text-secondary); line-height: 1.8; margin-bottom: 28px; font-size: 0.9rem; font-weight: 300;">
+            the voxeltron TUI is your entire ops dashboard. deploy apps, tail logs,
+            watch metrics, manage databases, configure secrets, run AI diagnostics
+            — all without leaving the terminal. connect from anywhere over SSH.
+            no VPN required.
+          </p>
+
+          <div style="border-top: 1px solid var(--color-border);">
+            {[
+              ['navigation', 'vim-style (hjkl), search (/), mouse optional'],
+              ['remote access', 'SSH via Wish — works from your phone'],
+              ['themes', 'dark, light, synthwave, nord, gruvbox'],
+              ['views', 'dashboard, deploys, databases, AI, config, logs'],
+              ['actions', 'deploy, rollback, scale, rotate certs, manage secrets'],
+              ['streaming', 'real-time build logs, metrics sparklines, AI progress'],
+            ].map(([label, value]) => (
+              <div class="spec-row">
+                <span class="spec-row-label">{label}</span>
+                <span style="font-size: 0.8rem; color: var(--color-text-secondary); font-weight: 300; text-align: right;">{value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="reveal">
+          <div class="terminal-window">
+            <div class="terminal-titlebar">
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span class="terminal-title">voxeltron — SSH — prod.server.io</span>
+            </div>
+            <div class="terminal-body" style="padding: 20px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--color-border); margin-bottom: 16px; border-radius: 4px; overflow: hidden;">
+                <div style="background: var(--color-surface-solid); padding: 12px;">
+                  <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em;">cpu</div>
+                  <div style="font-family: var(--font-mono); font-size: 1rem; color: var(--color-text); font-weight: 500;">0.2%</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-muted); margin-top: 4px; letter-spacing: -1px;">▁▂▁▂▁▁▂▃▂▁</div>
+                </div>
+                <div style="background: var(--color-surface-solid); padding: 12px;">
+                  <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em;">ram</div>
+                  <div style="font-family: var(--font-mono); font-size: 1rem; color: var(--color-text); font-weight: 500;">47 MB</div>
+                  <div style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--color-muted); margin-top: 4px; letter-spacing: -1px;">▃▃▄▃▃▂▃▃▄▃</div>
+                </div>
+              </div>
+
+              <div>
+                <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.1em;">services</div>
+                {[
+                  { name: 'web-app',     status: 'running' },
+                  { name: 'api-server',  status: 'running' },
+                  { name: 'postgres-16', status: 'running' },
+                  { name: 'redis-7',     status: 'running' },
+                ].map((svc) => (
+                  <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.75rem; padding: 5px 0; border-bottom: 1px solid var(--color-border);">
+                    <span style="color: var(--color-text-secondary);">{svc.name}</span>
+                    <span style="color: var(--color-success);">{svc.status}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--color-muted); margin-top: 14px;">
+                ? help &nbsp;&nbsp; d deploy &nbsp;&nbsp; l logs &nbsp;&nbsp; ctrl+a ai
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ COMPARISON ════════════════════════ -->
+  <section id="comparison" style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal mb-16">
+        <div class="section-label mb-4">COMPARISON 比較</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700;">
+          honest comparison. no cherry-picked benchmarks.
+        </h2>
+      </div>
+
+      <div class="reveal" style="border: 1px solid var(--color-border); border-radius: 4px; overflow-x: auto;">
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th style="width: 240px; text-align: left;">property</th>
+              <th class="highlight">voxeltron</th>
+              <th>coolify</th>
+              <th>dokploy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ['core language',           'Rust + Go',         'PHP',          'TypeScript'],
+              ['management interface',    'TUI (terminal)',    'web browser',  'web browser'],
+              ['reverse proxy',           'Pingora',           'Traefik',      'Traefik'],
+              ['zero-downtime deploys',   'yes',               'no',           'no'],
+              ['built-in AI agent',       'yes (25 features)', 'no',           'no'],
+              ['docker compose support',  'yes (with profiles)','partial',     'partial'],
+              ['plugin system',           'WASM + JS/TS',      'no',           'no'],
+              ['no web attack surface',   'yes',               'no',           'no'],
+              ['idle RAM usage',          '<80 MB',            '~400 MB',      '~300 MB'],
+              ['binary size',             '~30 MB',            'N/A',          'N/A'],
+              ['import from competitors', 'yes',               'no',           'no'],
+              ['secrets encryption',      'AES-256-GCM',       'partial',      'partial'],
+              ['SSH remote access',       'yes (Wish)',        'no',           'no'],
+              ['anomaly detection',       'yes (ML-based)',    'no',           'no'],
+              ['auto-remediation',        'yes (with approval)','no',          'no'],
+              ['incident collaboration',  'yes (rooms + RBAC)','no',           'no'],
+              ['post-mortem generation',  'yes (automated)',   'no',           'no'],
+              ['REST API off by default', 'yes',               'no',           'no'],
+            ].map(([prop, vx, cool, dok], i) => (
+              <tr style={i % 2 === 0 ? `background: var(--color-surface);` : ''}>
+                <td style="color: var(--color-text-secondary); font-size: 0.8rem;">{prop}</td>
+                <td class="highlight">
+                  {vx === 'yes'
+                    ? <span class="check">yes</span>
+                    : vx === 'no'
+                    ? <span class="cross">no</span>
+                    : <span style="color: var(--color-text);">{vx}</span>
+                  }
+                </td>
+                <td>
+                  {cool === 'yes'
+                    ? <span class="check">yes</span>
+                    : cool === 'no'
+                    ? <span class="cross">no</span>
+                    : <span>{cool}</span>
+                  }
+                </td>
+                <td>
+                  {dok === 'yes'
+                    ? <span class="check">yes</span>
+                    : dok === 'no'
+                    ? <span class="cross">no</span>
+                    : <span>{dok}</span>
+                  }
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ ARCHITECTURE ══════════════════════ -->
+  <section style="padding: 6rem 1.5rem;">
+    <div class="max-w-3xl mx-auto reveal">
+      <div class="section-label mb-4">ARCHITECTURE アーキテクチャ</div>
+      <h2 style="font-family: var(--font-display); font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 700; margin-bottom: 32px;">
+        what's inside
+      </h2>
+
+      <div style="border: 1px solid var(--color-border); border-radius: 4px; padding: 0 24px;">
+        {[
+          ['runtime', 'Rust + Tokio async'],
+          ['proxy', 'Pingora (Cloudflare)'],
+          ['tui', 'Go / Bubbletea + Lipgloss'],
+          ['api', 'gRPC + Protobuf (mTLS)'],
+          ['storage', 'SQLite (+ pgvector for AI)'],
+          ['container runtimes', 'Docker + Apple Containers (macOS)'],
+          ['secrets', 'AES-256-GCM / Vault / OpenBao'],
+          ['plugins', 'Extism (WASM) + Bun (JS/TS)'],
+          ['builds', 'Nixpacks + Railpack + Dockerfile'],
+          ['tls', "Let's Encrypt (ACME)"],
+          ['backups', 'S3 / GCS / MinIO / local'],
+          ['ai models', 'Claude / GPT (bring your own key)'],
+          ['clustering', 'Raft consensus (enterprise)'],
+          ['license', 'AGPL-3.0 (open-core)'],
+        ].map(([label, value]) => (
+          <div class="spec-row">
+            <span class="spec-row-label">{label}</span>
+            <span class="spec-row-value">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ══════════════════════════ PRICING ═══════════════════════════ -->
+  <section id="pricing" style="padding: 6rem 1.5rem;">
+    <div class="max-w-5xl mx-auto">
+      <div class="reveal mb-16">
+        <div class="section-label mb-4">PRICING 価格</div>
+        <h2 style="font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700;">
+          free to self-host. forever.
+        </h2>
+        <p style="color: var(--color-text-secondary); margin-top: 12px; max-width: 480px; font-size: 0.9rem; line-height: 1.75; font-weight: 300;">
+          the open-source version is the real product — not a teaser.
+          cloud tiers add convenience features for growing teams.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-px reveal" style="background: var(--color-border); border: 1px solid var(--color-border); border-radius: 4px;">
+        <!-- Free -->
+        <div class="pricing-card" style="background: var(--color-surface-solid);">
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+              community
+            </div>
+            <div style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--color-text);">$0</div>
+            <div style="color: var(--color-muted); font-size: 0.8rem; margin-top: 4px; font-family: var(--font-mono);">free forever / self-hosted</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            {['unlimited apps and databases', '1 server', 'full AI agent (BYOK)', 'automatic TLS', 'monitoring and alerts', 'WASM + JS plugins', 'docker compose support', 'automated backups', 'community support'].map((f) => (
+              <div class="pricing-feature">{f}</div>
+            ))}
+          </div>
+          <a href="/docs/installation" class="btn-bordered" style="text-align: center; width: 100%; font-size: 0.8rem;">
+            Install Now
+          </a>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card featured" style="background: var(--color-surface-solid);">
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+              pro
+            </div>
+            <div style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--color-text);">$9</div>
+            <div style="color: var(--color-muted); font-size: 0.8rem; margin-top: 4px; font-family: var(--font-mono);">per month</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            {['everything in community', 'unlimited servers', 'voxeltron cloud sync', 'web dashboard (optional)', 'mobile app', 'AI: BYOK + 100k tokens/mo', '30-day config backup retention', 'cluster discovery', 'email support'].map((f) => (
+              <div class="pricing-feature">{f}</div>
+            ))}
+          </div>
+          <a href="/docs/getting-started" class="btn-solid" style="text-align: center; width: 100%; font-size: 0.8rem;">
+            Start Free Trial
+          </a>
+        </div>
+
+        <!-- Teams -->
+        <div class="pricing-card" style="background: var(--color-surface-solid);">
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;">
+              teams
+            </div>
+            <div style="font-family: var(--font-display); font-size: 2.5rem; font-weight: 700; line-height: 1; color: var(--color-text);">$29</div>
+            <div style="color: var(--color-muted); font-size: 0.8rem; margin-top: 4px; font-family: var(--font-mono);">per month</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+            {['everything in pro', 'RBAC and team permissions', 'incident collaboration rooms', 'automated post-mortems', 'AI: BYOK + 500k tokens/mo', '90-day config backup retention', 'audit log export', 'priority support', 'SLA guarantee'].map((f) => (
+              <div class="pricing-feature">{f}</div>
+            ))}
+          </div>
+          <a href="/docs/getting-started" class="btn-bordered" style="text-align: center; width: 100%; font-size: 0.8rem;">
+            Get Teams
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <!-- ════════════════════════════ CTA ═════════════════════════════ -->
+  <section id="get-started" style="padding: 8rem 1.5rem;">
+    <div class="max-w-3xl mx-auto text-center reveal">
+      <div class="section-label mb-6">GET STARTED はじめる</div>
+      <h2 style="font-family: var(--font-display); font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; margin-bottom: 20px; letter-spacing: -0.02em;">
+        ship like a team of ten.<br />stay a team of two.
+      </h2>
+      <p style="color: var(--color-text-secondary); font-size: 0.95rem; margin-bottom: 36px; line-height: 1.75; font-weight: 300;">
+        voxeltron is free, open-source, and installs in sixty seconds.<br />
+        your next deploy is zero-downtime. your next outage has an AI on it.
+      </p>
+
+      <div style="background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: 4px; padding: 14px 24px; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 32px; font-family: var(--font-mono); font-size: 0.8rem;">
+        <span style="color: var(--color-accent);">$</span>
+        <span style="color: var(--color-text);">curl -sSL https://voxeltron.dev/install.sh | bash</span>
+      </div>
+
+      <div class="flex flex-wrap gap-3 justify-center">
+        <a href="/docs/getting-started" class="btn-solid" style="font-size: 0.875rem; padding: 12px 28px;">Read the Docs</a>
+        <a href="https://github.com/jaikoo/voxeltron" target="_blank" rel="noopener" class="btn-bordered" style="font-size: 0.875rem; padding: 12px 28px;">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════════════════════════ FOOTER ════════════════════════ -->
+  <footer style="border-top: 1px solid var(--color-border);">
+    <div class="max-w-5xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div class="col-span-2 md:col-span-1">
+          <div class="flex items-center gap-2 mb-3">
+            <img src="/favicon.svg" alt="" class="w-6 h-6" style="border-radius: 4px;" />
+            <span style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-text);">voxeltron</span>
+          </div>
+          <p style="color: var(--color-muted); font-size: 0.8rem; line-height: 1.6; font-weight: 300;">
+            your infra team is a terminal.<br />built by dthink.
+          </p>
+          <div class="flex gap-2 mt-4 flex-wrap">
+            {['Rust', 'E2E Encrypted', 'Open Source', 'AI Native'].map((tag) => (
+              <span class="badge">{tag}</span>
+            ))}
+          </div>
+        </div>
+
+        {[
+          {
+            title: 'product',
+            links: [['#features', 'features'], ['#ai-agent', 'ai agent'], ['#comparison', 'comparison'], ['#pricing', 'pricing']],
+          },
+          {
+            title: 'docs',
+            links: [['/docs/getting-started', 'getting started'], ['/docs/installation', 'installation'], ['/docs/ai', 'ai agent'], ['/docs/plugins', 'plugins'], ['/docs/databases', 'databases']],
+          },
+          {
+            title: 'community',
+            links: [['https://github.com/jaikoo/voxeltron', 'github'], ['https://discord.com', 'discord'], ['https://github.com/jaikoo/voxeltron/issues', 'issues']],
+          },
+        ].map((group) => (
+          <div>
+            <h4 style="font-family: var(--font-mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-muted); margin-bottom: 12px;">{group.title}</h4>
+            {group.links.map(([href, label]) => (
+              <a href={href} style="display: block; color: var(--color-text-secondary); text-decoration: none; font-size: 0.8rem; margin-bottom: 8px; transition: color 0.2s;" class="hover:text-white">{label}</a>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      <div class="footer-divider mb-6"></div>
+
+      <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <p style="color: var(--color-muted); font-size: 0.75rem; font-family: var(--font-mono);">
+          &copy; 2026 dthink / voxeltron. AGPL-3.0.
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted);">
+          v1.0.0
+        </div>
+      </div>
+    </div>
+  </footer>
+</BaseLayout>
+
+<!-- ════════════════ SCROLL REVEAL + TERMINAL ANIMATION ════════════════ -->
+<script>
+  // ── Staggered fadeInUp on page load ──────────────────────────────────
+  const allReveals = document.querySelectorAll<HTMLElement>('.reveal');
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    },
+    { threshold: 0.06, rootMargin: '0px 0px -20px 0px' }
+  );
+  allReveals.forEach((el) => observer.observe(el));
+
+  // ── Terminal typing animation ─────────────────────────────────────────
+  interface TermLine {
+    type: 'command' | 'success' | 'info' | 'warn' | 'blank';
+    text?: string;
+  }
+
+  const sessions: TermLine[][] = [
+    [
+      { type: 'command', text: 'curl -sSL https://voxeltron.dev/install.sh | bash' },
+      { type: 'success', text: '  installed voxeltron v1.0.0 and voxeltrond v1.0.0' },
+      { type: 'blank' },
+      { type: 'command', text: 'voxeltrond start' },
+      { type: 'success', text: '  daemon started  gRPC on :7443  proxy on :80/:443' },
+      { type: 'blank' },
+      { type: 'command', text: 'voxeltron' },
+      { type: 'success', text: '  connected  0 services running  uptime 0s' },
+    ],
+    [
+      { type: 'command', text: 'voxeltron deploy --source github.com/you/my-app' },
+      { type: 'info',    text: '  cloning repository...' },
+      { type: 'info',    text: '  building with nixpacks (detected: next.js 14)...' },
+      { type: 'info',    text: '  image built in 23s  182MB' },
+      { type: 'info',    text: '  zero-downtime route swap via pingora...' },
+      { type: 'success', text: '  deployed  https://my-app.yourdomain.com' },
+      { type: 'success', text: '  tls cert issued via lets encrypt (0.4s)' },
+    ],
+    [
+      { type: 'command', text: 'voxeltron db provision postgres --version 16' },
+      { type: 'info',    text: '  provisioning postgresql 16...' },
+      { type: 'success', text: '  running on internal port 5432' },
+      { type: 'success', text: '  DATABASE_URL injected (encrypted, never logged)' },
+      { type: 'blank' },
+      { type: 'command', text: 'voxeltron db backup --now' },
+      { type: 'success', text: '  backup complete  14.2MB  stored to s3' },
+    ],
+    [
+      { type: 'command', text: '# press ctrl+a to open the AI agent' },
+      { type: 'blank' },
+      { type: 'info',    text: '  voxeltron ai — context loaded' },
+      { type: 'info',    text: '  logs: 2,481 entries  metrics: 24h  deploys: 12' },
+      { type: 'info',    text: '  > why does web-app keep OOMing?' },
+      { type: 'warn',    text: '  hypothesis: next.js ISR cache unbounded growth' },
+      { type: 'warn',    text: '  evidence: memory 256MB limit, RSS climbing 8MB/hr' },
+      { type: 'warn',    text: '  fix: set --memory 512mb. apply? [y/n]' },
+      { type: 'success', text: '  fix applied. redeploying...' },
+      { type: 'success', text: '  insight saved to knowledge base for next time.' },
+    ],
+  ];
+
+  let sessionIdx = 0;
+  const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+  async function runTerminal(container: HTMLElement): Promise<void> {
+    while (true) {
+      while (container.firstChild) container.removeChild(container.firstChild);
+
+      const lines = sessions[sessionIdx % sessions.length];
+      sessionIdx++;
+
+      for (const line of lines) {
+        if (line.type === 'blank') {
+          container.appendChild(document.createElement('br'));
+          await sleep(200);
+          continue;
+        }
+
+        const lineEl = document.createElement('div');
+        lineEl.style.cssText = 'margin-bottom: 2px; white-space: pre-wrap; word-break: break-all;';
+
+        if (line.type === 'command') {
+          const prompt = document.createElement('span');
+          prompt.className = 'term-prompt';
+          prompt.textContent = '$ ';
+          lineEl.appendChild(prompt);
+        }
+
+        const textEl = document.createElement('span');
+        const classMap: Record<string, string> = {
+          command: 'term-cmd',
+          success: 'term-success',
+          info: 'term-info',
+          warn: 'term-warn',
+        };
+        textEl.className = classMap[line.type] ?? 'term-cmd';
+        lineEl.appendChild(textEl);
+
+        const cursor = document.createElement('span');
+        cursor.className = 'term-cursor';
+        lineEl.appendChild(cursor);
+        container.appendChild(lineEl);
+        container.scrollTop = container.scrollHeight;
+
+        const chars = (line.text ?? '').split('');
+        const speed = line.type === 'command' ? 40 : 12;
+
+        for (const ch of chars) {
+          textEl.textContent = (textEl.textContent ?? '') + ch;
+          container.scrollTop = container.scrollHeight;
+          await sleep(speed + Math.random() * speed * 0.5);
+        }
+
+        cursor.remove();
+        await sleep(line.type === 'command' ? 420 : 70);
+      }
+
+      const endCursor = document.createElement('span');
+      endCursor.className = 'term-cursor';
+      container.appendChild(endCursor);
+      await sleep(3800);
+    }
+  }
+
+  const heroTerm = document.getElementById('hero-terminal');
+  if (heroTerm) runTerminal(heroTerm);
+</script>

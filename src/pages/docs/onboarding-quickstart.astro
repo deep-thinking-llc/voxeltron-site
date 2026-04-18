@@ -1,0 +1,43 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Onboarding Quickstart" description="From local binary to first deploy on a clean server.">
+  <h1>Onboarding Quickstart</h1>
+  <p style="color: var(--color-text-2); font-size: 1.05rem;">
+    Use this path for the zero-manual experience: install local CLI, bootstrap remote host, verify readiness, deploy.
+  </p>
+
+  <h2>1. Install local CLI</h2>
+  <pre><code>curl -fsSL https://github.com/jaikoo/voxeltron/releases/latest/download/install-voxeltron.sh | bash</code></pre>
+
+  <h2>2. Bootstrap a clean server</h2>
+  <pre><code>voxeltron bootstrap root@203.0.113.10 \
+  --domain apps.example.com \
+  --email ops@example.com \
+  --profile prod \
+  --yes</code></pre>
+
+  <h2>3. Verify health</h2>
+  <pre><code>voxeltron doctor local
+voxeltron doctor remote --server prod --domain apps.example.com</code></pre>
+
+  <h2>4. Deploy first app</h2>
+  <pre><code>voxeltron deploy nginx:alpine --name hello --server prod --wait</code></pre>
+
+  <h2>JSON mode for automation</h2>
+  <pre><code>voxeltron bootstrap root@203.0.113.10 --profile prod --yes --json
+voxeltron deploy nginx --name hello --server prod --wait --json</code></pre>
+
+  <fragment slot="prev">
+    <a href="/docs/installation" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      ← Installation
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/onboarding-migration-guide" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Onboarding Migration Guide →
+    </a>
+  </fragment>
+</DocsLayout>

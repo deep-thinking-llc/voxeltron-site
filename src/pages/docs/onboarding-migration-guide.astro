@@ -1,0 +1,53 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Onboarding Migration Guide" description="Migrate from manual server setup to the new onboarding flow.">
+  <h1>Onboarding Migration Guide</h1>
+  <p style="color: var(--color-text-2); font-size: 1.05rem;">
+    Replace manual binary copy and hand-authored config with <code>bootstrap</code>, <code>doctor</code>, and profile-based deploy commands.
+  </p>
+
+  <h2>Old vs new</h2>
+  <ul>
+    <li>Old: copy binaries manually + write config + write systemd + track host details by hand.</li>
+    <li>New: <code>voxeltron bootstrap ...</code> once, then deploy with saved server profiles.</li>
+  </ul>
+
+  <h2>Command mapping</h2>
+  <pre><code># old: manual SSH + copy + chmod + service setup
+# new:
+voxeltron bootstrap &lt;user@host&gt; --profile &lt;name&gt; --yes
+
+# old: manual endpoint notes
+# new:
+voxeltron server add prod --host 203.0.113.10 --user root
+voxeltron server use prod
+
+# old: ad hoc health checks
+# new:
+voxeltron doctor local
+voxeltron doctor remote --server prod
+
+# old: custom deploy wrappers
+# new:
+voxeltron deploy nginx --name hello --server prod --wait --json</code></pre>
+
+  <h2>Compatibility notes</h2>
+  <ul>
+    <li>Digest image refs (<code>image@sha256:...</code>) are not supported yet in deploy flow.</li>
+    <li>Tagged image deploys are supported and no longer append duplicate tags.</li>
+  </ul>
+
+  <fragment slot="prev">
+    <a href="/docs/onboarding-quickstart" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      ← Onboarding Quickstart
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/troubleshooting" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Troubleshooting →
+    </a>
+  </fragment>
+</DocsLayout>

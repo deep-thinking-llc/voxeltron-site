@@ -1,0 +1,220 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Backups" description="Automated backup scheduling, compression, encryption, and multi-target uploads.">
+	<h1>Backups</h1>
+	<p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+		Automated backup scheduling, compression, encryption, and multi-target uploads for all your managed databases.
+	</p>
+
+	<h2>Overview</h2>
+	<p>
+		Voxeltron includes an automated backup system for every managed database. The pipeline runs in four stages:
+	</p>
+	<div style="display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap;">
+		<div style="flex: 1; min-width: 140px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">1. Dump</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">Native database dump via pg_dump, mysqldump, redis-cli, or mongodump.</p>
+		</div>
+		<div style="flex: 1; min-width: 140px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">2. Compress</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">Gzip compression to minimize storage and transfer costs.</p>
+		</div>
+		<div style="flex: 1; min-width: 140px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">3. Encrypt</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">Optional AES-256-GCM encryption before the backup leaves the host.</p>
+		</div>
+		<div style="flex: 1; min-width: 140px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">4. Upload</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">Push to one or more configured backup targets.</p>
+		</div>
+	</div>
+	<p>
+		Backups are scheduled per-database with cron expressions, and each job can target a different storage backend.
+		The entire pipeline is managed by the <code>BackupScheduler</code> inside <code>voxeltrond</code> — no external
+		tools or cron daemons required.
+	</p>
+
+	<h2>Backup Targets</h2>
+	<p>Backups can be sent to any combination of the following targets:</p>
+	<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+		<div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+			<h3 style="margin-top: 0;">Local</h3>
+			<p style="color: var(--color-text-2); margin-bottom: 0;">
+				Store backups on the host filesystem. Fast restores, no network dependency. Best paired with a remote
+				target for disaster recovery.
+			</p>
+		</div>
+		<div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+			<h3 style="margin-top: 0;">S3-Compatible</h3>
+			<p style="color: var(--color-text-2); margin-bottom: 0;">
+				AWS S3, MinIO, Wasabi, Backblaze B2, or any S3-compatible endpoint. Configure bucket, region,
+				access key, and secret key.
+			</p>
+		</div>
+		<div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+			<h3 style="margin-top: 0;">Google Cloud Storage</h3>
+			<p style="color: var(--color-text-2); margin-bottom: 0;">
+				Upload directly to GCS buckets using a service account JSON key file. Supports all GCS storage classes.
+			</p>
+		</div>
+		<div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+			<h3 style="margin-top: 0;">Voxeltron Cloud</h3>
+			<p style="color: var(--color-text-2); margin-bottom: 0;">
+				Managed backup storage via Voxeltron Cloud. Zero configuration — just link your instance and backups
+				are stored securely in your cloud account.
+			</p>
+		</div>
+	</div>
+
+	<h2>Scheduling</h2>
+	<p>
+		Backup jobs are driven by cron expressions evaluated by the built-in <code>BackupScheduler</code>. Each database
+		can have its own schedule, target, and retention policy. Schedules are defined in
+		<code>/etc/voxeltron/config.toml</code>:
+	</p>
+	<pre><code style="font-family: var(--font-mono);">[[backup.jobs]]
+database = "mydb"
+schedule = "0 3 * * *"        # Daily at 03:00 UTC
+target   = "s3"
+compress = true
+encrypt  = true
+
+[[backup.jobs]]
+database = "mycache"
+schedule = "0 */6 * * *"      # Every 6 hours
+target   = "local"
+compress = true
+encrypt  = false</code></pre>
+	<p>
+		The scheduler runs inside <code>voxeltrond</code> and triggers jobs without relying on the system cron daemon.
+		Missed schedules (e.g. during daemon restarts) are detected and run on the next startup.
+	</p>
+
+	<h2>Compression &amp; Encryption</h2>
+	<h3>Compression</h3>
+	<p>
+		When <code>compress = true</code>, the raw database dump is piped through gzip before storage. This typically
+		reduces backup size by 70-90% for text-heavy databases. Compression is enabled by default.
+	</p>
+	<h3>Encryption</h3>
+	<p>
+		When <code>encrypt = true</code>, the backup is encrypted with <strong>AES-256-GCM</strong> authenticated
+		encryption. The encryption key is configured globally or per-job:
+	</p>
+	<pre><code style="font-family: var(--font-mono);">[backup]
+encryption_key = "your-256-bit-base64-encoded-key"</code></pre>
+	<p style="color: var(--color-text-2);">
+		The encryption key is stored in the secrets store and never logged. Each backup gets a unique nonce to prevent
+		key reuse attacks. Without the key, backup files are unrecoverable — store it securely.
+	</p>
+
+	<h2>Restore</h2>
+	<p>
+		Restore a backup from any configured target. Voxeltron handles decompression and decryption automatically,
+		then pipes the dump into the appropriate database engine:
+	</p>
+	<div style="padding: 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; margin: 20px 0;">
+		<table style="width: 100%; border-collapse: collapse;">
+			<thead>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<th style="text-align: left; padding: 8px; color: var(--color-text-2);">Engine</th>
+					<th style="text-align: left; padding: 8px; color: var(--color-text-2);">Restore Tool</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 8px;">PostgreSQL</td>
+					<td style="padding: 8px;"><code>pg_restore</code></td>
+				</tr>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 8px;">MySQL</td>
+					<td style="padding: 8px;"><code>mysql</code></td>
+				</tr>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 8px;">Redis</td>
+					<td style="padding: 8px;"><code>redis-cli</code></td>
+				</tr>
+				<tr>
+					<td style="padding: 8px;">MongoDB</td>
+					<td style="padding: 8px;"><code>mongorestore</code></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<p>Restore from the CLI:</p>
+	<pre><code style="font-family: var(--font-mono);"># Restore the latest backup
+voxeltron db restore mydb --latest
+
+# Restore a specific backup by timestamp
+voxeltron db restore mydb --timestamp 2026-02-25T03:00:00Z
+
+# Restore from a specific target
+voxeltron db restore mydb --latest --target s3</code></pre>
+	<p style="color: var(--color-text-2);">
+		Restores are performed in-place. The target database is stopped, the backup is loaded, and the database
+		is restarted. Connected apps are notified via health check failures and will reconnect automatically.
+	</p>
+
+	<h2>Retention</h2>
+	<p>
+		Each backup job can define a <code>retention_days</code> value. Backups older than this threshold are
+		automatically pruned from the target storage. Retention is evaluated after each successful backup.
+	</p>
+	<pre><code style="font-family: var(--font-mono);">[[backup.jobs]]
+database       = "mydb"
+schedule       = "0 3 * * *"
+target         = "s3"
+retention_days = 30            # Keep 30 days of backups</code></pre>
+	<p style="color: var(--color-text-2);">
+		If <code>retention_days</code> is omitted, backups are kept indefinitely. Set a retention policy to avoid
+		unbounded storage growth, especially on cloud targets with per-GB billing.
+	</p>
+
+	<h2>Configuration</h2>
+	<p>
+		Full backup configuration lives in <code>/etc/voxeltron/config.toml</code>. Here is a complete example
+		with S3 and GCS targets:
+	</p>
+	<pre><code style="font-family: var(--font-mono);">[backup]
+encryption_key = "base64-encoded-256-bit-key"
+
+[backup.targets.local]
+path = "/var/lib/voxeltron/backups"
+
+[backup.targets.s3]
+endpoint   = "https://s3.amazonaws.com"
+bucket     = "my-voxeltron-backups"
+region     = "us-east-1"
+access_key = "AKIA..."
+secret_key = "wJal..."
+
+[backup.targets.gcs]
+bucket           = "my-voxeltron-backups"
+credentials_file = "/etc/voxeltron/gcs-service-account.json"
+
+[[backup.jobs]]
+database       = "mydb"
+schedule       = "0 3 * * *"
+target         = "s3"
+compress       = true
+encrypt        = true
+retention_days = 30
+
+[[backup.jobs]]
+database       = "analytics"
+schedule       = "0 0 * * 0"       # Weekly on Sunday
+target         = "gcs"
+compress       = true
+encrypt        = true
+retention_days = 90
+
+[[backup.jobs]]
+database       = "mycache"
+schedule       = "0 */6 * * *"
+target         = "local"
+compress       = true
+encrypt        = false
+retention_days = 7</code></pre>
+</DocsLayout>

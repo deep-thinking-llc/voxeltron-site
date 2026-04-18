@@ -1,0 +1,94 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Binary Verification" description="Verify release checksums, signatures, and supply chain provenance.">
+	<h1>Binary Verification</h1>
+	<p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+		Verify the authenticity and integrity of Voxeltron releases before installing them.
+	</p>
+
+	<h2>Checksum Verification</h2>
+	<p>
+		Every GitHub Release includes a <code>checksums.txt</code> file containing SHA256 hashes for all release
+		artifacts. To verify a downloaded binary:
+	</p>
+	<pre><code style="font-family: var(--font-mono);"># Download the checksums file for your release
+curl -LO https://github.com/jaikoo/voxeltron/releases/download/v0.1.0/checksums.txt
+
+# Verify all downloaded artifacts against the checksums
+sha256sum --check checksums.txt</code></pre>
+
+	<div class="callout tip">
+		On macOS, use <code>shasum -a 256</code> instead of <code>sha256sum</code>:
+		<pre><code style="font-family: var(--font-mono);">shasum -a 256 --check checksums.txt</code></pre>
+	</div>
+
+	<p>To verify a single file manually:</p>
+	<pre><code style="font-family: var(--font-mono);"># Compute the hash of the downloaded binary
+sha256sum voxeltrond-linux-amd64.tar.gz
+
+# Compare the output against the corresponding line in checksums.txt</code></pre>
+
+	<div class="callout warning">
+		If the hashes do not match, do not use the binary. Re-download from the official
+		<a href="https://github.com/jaikoo/voxeltron/releases">GitHub Releases</a> page and verify again.
+	</div>
+
+	<h2>Cosign Verification <span style="color: var(--color-muted); font-size: 0.75em; font-weight: 400;">GitHub fallback releases</span></h2>
+	<p>
+		Manual releases from <code>build-mac</code> are currently the primary release path. Cosign keyless provenance applies only when a
+		release is produced via the GitHub fallback workflow and includes <code>.sig</code>/<code>.pem</code> files.
+	</p>
+	<p>If those files are present, verify <code>checksums.txt</code> provenance with:</p>
+	<pre><code style="font-family: var(--font-mono);">cosign verify-blob \
+	  --signature checksums.txt.sig \
+	  --certificate checksums.txt.pem \
+	  --certificate-identity-regexp "https://github.com/jaikoo/voxeltron/.github/workflows/release.yml@refs/tags/v.*" \
+	  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
+	  checksums.txt</code></pre>
+	<p>Then validate artifact hashes:</p>
+	<pre><code style="font-family: var(--font-mono);">sha256sum --check checksums.txt</code></pre>
+
+	<h2>GPG Verification (APT/DNF repository metadata)</h2>
+	<p>Releases now include:</p>
+	<ul>
+		<li><code>voxeltron-signing-key.asc</code> (public key)</li>
+		<li><code>voxeltron-apt-Release</code> + <code>voxeltron-apt-Release.gpg</code></li>
+		<li><code>voxeltron-rpm-repomd.xml</code> + <code>voxeltron-rpm-repomd.xml.asc</code></li>
+	</ul>
+	<p>Verify repository metadata before trusting local or mirrored package repositories:</p>
+	<pre><code style="font-family: var(--font-mono);">gpg --import voxeltron-signing-key.asc
+gpg --verify voxeltron-apt-Release.gpg voxeltron-apt-Release
+gpg --verify voxeltron-rpm-repomd.xml.asc voxeltron-rpm-repomd.xml</code></pre>
+	<div class="callout warning">
+		If verification fails, do not use that repository snapshot. Re-download release metadata from the official release page.
+	</div>
+
+	<h2>SBOM <span style="color: var(--color-teal); font-size: 0.75em; font-weight: 600;">Available</span></h2>
+	<p>
+		Each release includes SPDX JSON SBOM files (<code>*.spdx.json</code>) generated from published artifacts.
+	</p>
+	<p>Use them to audit dependencies and feed vulnerability scanners:</p>
+	<pre><code style="font-family: var(--font-mono);"># Example: inspect package count in an SBOM
+jq '.packages | length' voxeltrond-x86_64-unknown-linux-gnu.tar.gz.spdx.json</code></pre>
+
+	<h2>Install Script Verification</h2>
+	<p>
+		If you use the one-line install script, always inspect it before piping to a shell:
+	</p>
+	<pre><code style="font-family: var(--font-mono);"># Download and review the script first
+curl -sSL https://get.voxeltron.dev | less
+
+# Only run it after you've reviewed the contents
+curl -sSL https://get.voxeltron.dev | bash</code></pre>
+
+	<div class="callout warning">
+		Never blindly pipe a remote script to <code>bash</code>. Always review the contents first.
+	</div>
+
+	<p>
+		The install script is open source and hosted in the Voxeltron repository. You can also review it directly
+		on GitHub before running it.
+	</p>
+</DocsLayout>

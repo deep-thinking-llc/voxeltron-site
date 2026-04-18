@@ -1,0 +1,128 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Documentation" description="Voxeltron documentation — everything you need to deploy everything.">
+  <h1>Voxeltron Documentation</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Welcome to the Voxeltron docs. You'll find everything you need to get running,
+    manage your services, and extend the platform — all from the comfort of a terminal.
+  </p>
+
+  <div class="callout tip">
+    New here? Start with the <a href="/docs/getting-started">Getting Started</a> guide —
+    you'll have a running deploy in under 60 seconds.
+  </div>
+
+  <h2>Quick Start</h2>
+
+  <pre><code><span style="color: var(--color-muted)"># Install Voxeltron</span>
+<span style="color: var(--color-teal);">$</span> curl -sSL https://voxeltron.dthink.ai/install.sh | bash
+
+<span style="color: var(--color-muted)"># Start the daemon</span>
+<span style="color: var(--color-teal);">$</span> voxeltrond start
+
+<span style="color: var(--color-muted)"># Launch the TUI</span>
+<span style="color: var(--color-teal);">$</span> voxeltron</code></pre>
+
+  <h2>Guides</h2>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; margin-top: 16px;">
+    {[
+      { href: '/docs/getting-started', emoji: '🗺️', title: 'Getting Started', body: 'What you need, quick install, and connecting the TUI.' },
+      { href: '/docs/installation', emoji: '📦', title: 'Installation', body: 'Script, manual, and from-source install methods with systemd setup.' },
+      { href: '/docs/first-deployment', emoji: '🚀', title: 'First Deployment', body: 'Deploy a Docker image or GitHub repo with TLS in 5 minutes.' },
+      { href: '/docs/tui', emoji: '🖥️', title: 'Terminal UI', body: 'Keybindings, themes, SSH remote access, and the AI panel.' },
+      { href: '/docs/databases', emoji: '🗄️', title: 'Databases', body: 'Provision, backup, restore, and upgrade managed databases.' },
+      { href: '/docs/ai', emoji: '🤖', title: 'AI Integration', body: 'Configure the AI panel and use agentic mode to fix your infra.' },
+      { href: '/docs/plugins', emoji: '🧩', title: 'Plugin System', body: 'Write WASM and JS/TS plugins. Understand capabilities and hooks.' },
+      { href: '/docs/domains-tls', emoji: '🔐', title: 'Domains & TLS', body: "Let's Encrypt, DNS-01, wildcard certs, and custom cert authorities." },
+      { href: '/docs/configuration', emoji: '⚙️', title: 'Configuration', body: 'Full reference for daemon and client config files.' },
+      { href: '/docs/ci-cd', emoji: '🛠️', title: 'CI/CD Pipeline', body: 'Temporary manual releases on build-mac, with automation as fallback only.' },
+      { href: '/docs/licensing', emoji: '⚖️', title: 'Licensing', body: 'Plain-language AGPL vs commercial self-hosting guide, plus SDK licensing boundaries.' },
+      { href: '/docs/monitoring', emoji: '📊', title: 'Monitoring & Alerts', body: 'Built-in metrics collection, log aggregation, and threshold-based alerting.' },
+      { href: '/docs/backup', emoji: '💾', title: 'Backups', body: 'Automated scheduled backups with compression, encryption, and multi-target uploads.' },
+      { href: '/docs/runbooks', emoji: '📋', title: 'Runbooks', body: 'Declarative operational runbooks with approval gates and automatic rollback.' },
+      { href: '/docs/troubleshooting', emoji: '🧰', title: 'Troubleshooting', body: 'Diagnose common daemon, deployment, TLS, and release failures quickly.' },
+      { href: '/docs/support', emoji: '🆘', title: 'Support', body: 'Support channels, severity targets, and escalation process.' },
+      { href: '/docs/cli-reference', emoji: '⌨️', title: 'CLI Reference', body: 'Complete command reference for the voxeltron CLI.' },
+      { href: '/docs/upgrading', emoji: '⬆️', title: 'Upgrading', body: 'Upgrade methods, rollback procedures, and migration guides.' },
+      { href: '/docs/migration-validation', emoji: '🧪', title: 'Migration Validation', body: 'Post-import validation, rollback rehearsal, and security sign-off playbook.' },
+      { href: '/docs/execution-checklist', emoji: '✅', title: 'Execution Checklist', body: 'Owner-assigned remaining work tracker with required done-evidence fields.' },
+      { href: '/docs/binary-verification', emoji: '🔏', title: 'Binary Verification', body: 'Verify release checksums, signatures, and supply chain provenance.' },
+    ].map((card) => (
+      <a
+        href={card.href}
+        style="
+          display: block;
+          padding: 20px;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: 10px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        "
+        class="doc-card"
+      >
+        <div style="font-size: 1.4rem; margin-bottom: 8px;">{card.emoji}</div>
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-text); margin-bottom: 4px;">{card.title}</div>
+        <div style="font-size: 0.825rem; color: var(--color-text-2); line-height: 1.5;">{card.body}</div>
+      </a>
+    ))}
+  </div>
+
+  <h2>Architecture in 30 Seconds</h2>
+
+  <p>Voxeltron is two binaries that talk to each other over gRPC:</p>
+
+  <pre><code style="line-height: 1.8;">
+  voxeltron (Go TUI)
+  │
+  │  gRPC over TLS (:7443)
+  │
+  voxeltrond (Rust daemon)
+  ├── Pingora reverse proxy     → :80 / :443 (your apps)
+  ├── Container management      → via bollard (Docker API)
+  ├── TLS certificates          → Let's Encrypt ACME
+  ├── Database provisioning     → Postgres, MySQL, Redis, MongoDB
+  ├── Build pipeline            → Nixpacks / Railpack
+  ├── WASM plugin host          → wasmtime + Extism
+  ├── JS plugin sidecar         → Bun runtime
+  ├── Monitoring                → metrics, logs, alerts
+  └── State storage             → SQLite (optional SQLCipher)</code></pre>
+
+  <h2>Key Concepts</h2>
+
+  <dl style="display: grid; gap: 16px; margin-top: 16px;">
+    {[
+      {
+        term: 'Service',
+        def: 'A running container managed by Voxeltron. Can be a Docker image or built from source.',
+      },
+      {
+        term: 'Domain',
+        def: 'A hostname routed to a service via the Pingora proxy, with TLS automatically managed.',
+      },
+      {
+        term: 'Environment variables',
+        def: 'Secrets injected into a service at runtime. Encrypted at rest, never logged in plaintext.',
+      },
+      {
+        term: 'Plugin',
+        def: 'A sandboxed extension to the daemon that responds to lifecycle hooks with explicit capability grants.',
+      },
+    ].map(({ term, def }) => (
+      <div style="padding: 16px 20px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+        <dt style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-teal); margin-bottom: 4px;">{term}</dt>
+        <dd style="color: var(--color-text-2); font-size: 0.875rem; line-height: 1.6; margin: 0;">{def}</dd>
+      </div>
+    ))}
+  </dl>
+</DocsLayout>
+
+<style>
+  .doc-card:hover {
+    border-color: var(--color-teal-dim);
+    transform: translateY(-2px);
+  }
+</style>

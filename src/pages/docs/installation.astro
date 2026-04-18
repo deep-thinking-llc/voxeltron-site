@@ -1,0 +1,220 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Installation" description="Install Voxeltron on your server.">
+  <h1>Installation</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron ships as two static binaries: the daemon (<code>voxeltrond</code>) and the TUI client (<code>voxeltron</code>).
+    No runtime dependencies. No package manager drama. Just copy and run.
+  </p>
+
+  <p>
+    CI/CD policy: <a href="/docs/ci-cd">temporary manual releases on <code>build-mac</code></a>; automation is fallback only.
+  </p>
+
+  <h2>Method 1: Install Script (Recommended)</h2>
+
+  <p>The fastest way to get started. Run this on your server:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> curl -sSL https://voxeltron.dthink.ai/install.sh | bash</code></pre>
+
+  <p>The script:</p>
+  <ul>
+    <li>Detects your OS and architecture</li>
+    <li>Downloads the latest release binaries from GitHub</li>
+    <li>Installs them to <code>/usr/local/bin</code></li>
+    <li>Creates a <code>voxeltrond.service</code> systemd unit</li>
+    <li>Creates a <code>voxeltron</code> user with minimal privileges</li>
+  </ul>
+
+  <div class="callout info">
+    Always inspect installer scripts before running them. You can view the source at
+    <a href="https://github.com">github.com/voxeltron/voxeltron</a>.
+    Or use Method 2 below for a manual install.
+  </div>
+
+  <h2>Method 2: Manual Binary Install</h2>
+
+  <div class="step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <h3>Download the binaries</h3>
+      <p>Find the latest release on GitHub and download for your platform:</p>
+      <pre><code><span style="color: var(--color-muted);"># Linux x86_64 (most servers)</span>
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltrond-linux-x86_64.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltron-linux-x86_64.tar.gz
+
+<span style="color: var(--color-muted);"># macOS (for local TUI only)</span>
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltron-darwin-arm64.tar.gz</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <h3>Verify the checksums</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/SHA256SUMS
+<span style="color: var(--color-teal);">$</span> sha256sum --check SHA256SUMS --ignore-missing</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <h3>Install the binaries</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> tar -xzf voxeltrond-linux-x86_64.tar.gz
+<span style="color: var(--color-teal);">$</span> tar -xzf voxeltron-linux-x86_64.tar.gz
+<span style="color: var(--color-teal);">$</span> sudo mv voxeltrond voxeltron /usr/local/bin/
+<span style="color: var(--color-teal);">$</span> sudo chmod +x /usr/local/bin/voxeltrond /usr/local/bin/voxeltron</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">4</div>
+    <div class="step-content">
+      <h3>Create the systemd service</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> sudo tee /etc/systemd/system/voxeltrond.service &lt;&lt;'EOF'
+[Unit]
+Description=Voxeltron Daemon
+After=network.target docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+User=voxeltron
+ExecStart=/usr/local/bin/voxeltrond start
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+<span style="color: var(--color-teal);">$</span> sudo useradd -r -s /bin/false voxeltron
+<span style="color: var(--color-teal);">$</span> sudo systemctl daemon-reload
+<span style="color: var(--color-teal);">$</span> sudo systemctl enable --now voxeltrond</code></pre>
+    </div>
+  </div>
+
+  <h2>Method 3: Build from Source</h2>
+
+  <p>For contributors or the deeply suspicious:</p>
+
+  <pre><code><span style="color: var(--color-muted);"># Prerequisites: Rust 1.82+, Go 1.22+</span>
+
+<span style="color: var(--color-teal);">$</span> git clone https://github.com/voxeltron/voxeltron
+<span style="color: var(--color-teal);">$</span> cd voxeltron
+
+<span style="color: var(--color-muted);"># Build the daemon</span>
+<span style="color: var(--color-teal);">$</span> cargo build --release -p voxeltrond
+
+<span style="color: var(--color-muted);"># Build the TUI</span>
+<span style="color: var(--color-teal);">$</span> cd tui &amp;&amp; go build -o voxeltron ./cmd/voxeltron</code></pre>
+
+
+  <h2>Method 4: Signed Package Repository Snapshots (APT/DNF)</h2>
+  <p>
+    Each release also ships signed APT and DNF repository snapshots for offline/mirrored environments.
+  </p>
+
+  <h3>APT (Debian/Ubuntu)</h3>
+  <pre><code><span style="color: var(--color-muted);"># Download snapshot + metadata + signing key from a release</span>
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-repo.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release.gpg
+
+<span style="color: var(--color-muted);"># Verify metadata signature</span>
+<span style="color: var(--color-teal);">$</span> gpg --import voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> gpg --verify voxeltron-apt-Release.gpg voxeltron-apt-Release
+
+<span style="color: var(--color-muted);"># Install from local repo snapshot</span>
+<span style="color: var(--color-teal);">$</span> sudo mkdir -p /opt/voxeltron-repo
+<span style="color: var(--color-teal);">$</span> sudo tar -xzf voxeltron-apt-repo.tar.gz -C /opt/voxeltron-repo
+<span style="color: var(--color-teal);">$</span> sudo install -D -m 0644 voxeltron-signing-key.asc /etc/apt/keyrings/voxeltron.asc
+<span style="color: var(--color-teal);">$</span> echo "deb [signed-by=/etc/apt/keyrings/voxeltron.asc] file:///opt/voxeltron-repo/apt stable main" | sudo tee /etc/apt/sources.list.d/voxeltron.list
+<span style="color: var(--color-teal);">$</span> sudo apt update && sudo apt install voxeltron</code></pre>
+
+  <h3>DNF (Fedora/RHEL)</h3>
+  <pre><code><span style="color: var(--color-muted);"># Download snapshot + metadata + signing key from a release</span>
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repo.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml.asc
+
+<span style="color: var(--color-muted);"># Verify metadata signature</span>
+<span style="color: var(--color-teal);">$</span> gpg --import voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> gpg --verify voxeltron-rpm-repomd.xml.asc voxeltron-rpm-repomd.xml
+
+<span style="color: var(--color-muted);"># Install from local repo snapshot</span>
+<span style="color: var(--color-teal);">$</span> sudo mkdir -p /opt/voxeltron-repo
+<span style="color: var(--color-teal);">$</span> sudo tar -xzf voxeltron-rpm-repo.tar.gz -C /opt/voxeltron-repo
+<span style="color: var(--color-teal);">$</span> sudo cp voxeltron-signing-key.asc /opt/voxeltron-repo/voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> cat &lt;&lt;'EOF' | sudo tee /etc/yum.repos.d/voxeltron.repo
+[voxeltron]
+name=Voxeltron
+baseurl=file:///opt/voxeltron-repo/rpm
+enabled=1
+gpgcheck=1
+gpgkey=file:///opt/voxeltron-repo/voxeltron-signing-key.asc
+EOF
+<span style="color: var(--color-teal);">$</span> sudo dnf makecache && sudo dnf install voxeltron</code></pre>
+
+  <div class="callout warning">
+    Always verify repository metadata signatures before enabling the repository snapshot.
+  </div>
+
+  <h2>Post-Install Verification</h2>
+
+  <pre><code><span style="color: var(--color-muted);"># Check versions</span>
+<span style="color: var(--color-teal);">$</span> voxeltrond --version
+voxeltrond v0.8.0
+
+<span style="color: var(--color-teal);">$</span> voxeltron --version
+voxeltron v0.8.0
+
+<span style="color: var(--color-muted);"># Check daemon health</span>
+<span style="color: var(--color-teal);">$</span> voxeltrond status
+<span style="color: var(--color-lime);">●</span> voxeltrond.service - Voxeltron Daemon
+   Active: active (running) since 2026-02-20 09:14:22 UTC
+   Memory: 47.2M
+   Uptime: 2h 14m 8s</code></pre>
+
+  <h2>Firewall Configuration</h2>
+
+  <p>Open the required ports on your server:</p>
+
+  <pre><code><span style="color: var(--color-muted);"># UFW (Ubuntu/Debian)</span>
+<span style="color: var(--color-teal);">$</span> sudo ufw allow 80/tcp    <span style="color: var(--color-muted);"># HTTP (redirected to HTTPS)</span>
+<span style="color: var(--color-teal);">$</span> sudo ufw allow 443/tcp   <span style="color: var(--color-muted);"># HTTPS</span>
+<span style="color: var(--color-teal);">$</span> sudo ufw allow 7443/tcp  <span style="color: var(--color-muted);"># gRPC management (restrict to your IP!)</span>
+
+<span style="color: var(--color-muted);"># Better: restrict gRPC to your IP</span>
+<span style="color: var(--color-teal);">$</span> sudo ufw allow from YOUR_IP to any port 7443</code></pre>
+
+  <div class="callout warn">
+    If you restrict port 7443 to your IP, you'll need to SSH tunnel to manage the daemon
+    from other locations: <code>ssh -L 7443:localhost:7443 user@server</code>
+  </div>
+
+  <h2>Uninstall</h2>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> sudo systemctl disable --now voxeltrond
+<span style="color: var(--color-teal);">$</span> sudo rm /usr/local/bin/voxeltron /usr/local/bin/voxeltrond
+<span style="color: var(--color-teal);">$</span> sudo rm /etc/systemd/system/voxeltrond.service
+<span style="color: var(--color-teal);">$</span> sudo rm -rf /var/lib/voxeltrond  <span style="color: var(--color-muted);"># WARNING: deletes all state</span></code></pre>
+
+  <fragment slot="prev">
+    <a href="/docs/getting-started" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      ← Getting Started
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/first-deployment" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      First Deployment →
+    </a>
+  </fragment>
+</DocsLayout>

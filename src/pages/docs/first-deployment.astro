@@ -1,0 +1,194 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="First Deployment" description="Deploy your first app with Voxeltron.">
+  <h1>Your First Deployment</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Let's take your app from zero to live — with TLS, a custom domain, and zero downtime.
+    This guide covers deploying from a Docker image and from a GitHub repo.
+  </p>
+
+  <div class="callout tip">
+    All of these commands run inside the TUI. Launch it with <code>voxeltron</code> and
+    use <code>d</code> for Deploy, or run them directly from the CLI.
+  </div>
+
+  <h2>Option A: Deploy a Docker Image</h2>
+
+  <p>The simplest path — if you already have a Docker image:</p>
+
+  <div class="step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <h3>Create a new service</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> voxeltron deploy \
+    --name my-app \
+    --image nginx:alpine \
+    --port 80 \
+    --domain my-app.example.com</code></pre>
+      <p>Voxeltron will:</p>
+      <ul>
+        <li>Pull the image from Docker Hub (or your private registry)</li>
+        <li>Start the container</li>
+        <li>Register the domain with the Pingora reverse proxy</li>
+        <li>Issue a TLS certificate via Let's Encrypt</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <h3>Watch the deploy</h3>
+      <pre><code><span style="color: var(--color-lime);">✓</span> Pulling image nginx:alpine...
+<span style="color: var(--color-lime);">✓</span> Starting container my-app-v1...
+<span style="color: var(--color-lime);">✓</span> Health check passed (HTTP 200 on /)
+<span style="color: var(--color-lime);">✓</span> TLS certificate issued (0.3s)
+<span style="color: var(--color-lime);">✓</span> Route registered: my-app.example.com → my-app-v1:80
+<span style="color: var(--color-lime);">✓</span> Live at https://my-app.example.com</code></pre>
+    </div>
+  </div>
+
+  <h2>Option B: Deploy from a Git Repository</h2>
+
+  <p>For source-to-image builds using Nixpacks (zero config) or Railpack:</p>
+
+  <div class="step">
+    <div class="step-number">1</div>
+    <div class="step-content">
+      <h3>Connect your repository</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> voxeltron deploy \
+    --name my-node-app \
+    --source github.com/you/my-node-app \
+    --branch main \
+    --domain my-node-app.example.com</code></pre>
+      <p>Voxeltron will auto-detect your language and build system. No config file needed.</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">2</div>
+    <div class="step-content">
+      <h3>Watch the build</h3>
+      <pre><code><span style="color: var(--color-blue);">→</span> Cloning github.com/you/my-node-app (main)...
+<span style="color: var(--color-blue);">→</span> Detected: Node.js 20 via Nixpacks
+<span style="color: var(--color-blue);">→</span> Installing dependencies (npm ci)...
+<span style="color: var(--color-blue);">→</span> Running build (npm run build)...
+<span style="color: var(--color-blue);">→</span> Image built in 34s · 143MB
+<span style="color: var(--color-blue);">→</span> Zero-downtime swap via Pingora hot-reload...
+<span style="color: var(--color-lime);">✓</span> Deployed! https://my-node-app.example.com</code></pre>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-number">3</div>
+    <div class="step-content">
+      <h3>Set up automatic deploys on git push</h3>
+      <pre><code><span style="color: var(--color-teal);">$</span> voxeltron service webhook my-node-app
+
+Webhook URL: https://my-server.example.com/_vx/hooks/abc123xyz
+Secret: (shown once — copy it now)</code></pre>
+      <p>Add this webhook URL to your GitHub/GitLab/Gitea repo. Every push to <code>main</code> will trigger a zero-downtime redeploy.</p>
+    </div>
+  </div>
+
+  <h2>Set Environment Variables</h2>
+
+  <p>Inject secrets securely — they're encrypted at rest and never appear in logs:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron env set my-app \
+    NODE_ENV=production \
+    API_KEY=super-secret-value \
+    DATABASE_URL="postgresql://..."</code></pre>
+
+  <div class="callout info">
+    Environment variables are encrypted with AES-256-GCM using a key derived with Argon2id.
+    The plaintext is never written to disk or logged.
+  </div>
+
+  <h2>Check Logs</h2>
+
+  <pre><code><span style="color: var(--color-muted);"># Live log tail</span>
+<span style="color: var(--color-teal);">$</span> voxeltron logs my-app --follow
+
+<span style="color: var(--color-muted);"># Search logs</span>
+<span style="color: var(--color-teal);">$</span> voxeltron logs my-app --search "error" --lines 100
+
+<span style="color: var(--color-muted);"># Or use the TUI: select service, press 'l'</span></code></pre>
+
+  <h2>Check Service Status</h2>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron status my-app
+
+Service: my-app
+  Status:  running
+  Image:   my-node-app:main-abc1234
+  Uptime:  2h 14m
+  CPU:     0.3%
+  Memory:  128MB / 512MB
+  Restart: 0 times
+  Domain:  https://my-node-app.example.com (TLS valid)</code></pre>
+
+  <h2>Roll Back a Deploy</h2>
+
+  <p>Made a bad deploy? Roll back in one command:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron rollback my-app
+
+Deploy history:
+  → v3  main-abc1234  2026-02-20 09:14  (current)
+     v2  main-def5678  2026-02-19 22:03
+     v1  main-ghi9012  2026-02-19 14:55
+
+Roll back to v2? [y/n]: y
+<span style="color: var(--color-lime);">✓</span> Zero-downtime rollback to main-def5678 complete</code></pre>
+
+  <h2>What's next?</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+    {[
+      { href: '/docs/databases', emoji: '🗄️', title: 'Add a Database', body: 'Provision Postgres, MySQL, Redis, or MongoDB in under 30 seconds.' },
+      { href: '/docs/domains-tls', emoji: '🔐', title: 'Custom Domains & TLS', body: 'Configure wildcard domains, DNS-01 challenges, and custom cert authorities.' },
+      { href: '/docs/ai', emoji: '🤖', title: 'Enable the AI Panel', body: 'Connect to Claude, GPT-4, Gemini, or Ollama and let the AI manage your infra.' },
+      { href: '/docs/plugins', emoji: '🧩', title: 'Install Plugins', body: 'Browse the plugin marketplace and extend Voxeltron with WASM plugins.' },
+    ].map((card) => (
+      <a
+        href={card.href}
+        style="
+          display: block;
+          padding: 20px;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: 10px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        "
+        class="hover-card"
+      >
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">{card.emoji}</div>
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-text); margin-bottom: 4px;">{card.title}</div>
+        <div style="font-size: 0.825rem; color: var(--color-text-2); line-height: 1.5;">{card.body}</div>
+      </a>
+    ))}
+  </div>
+
+  <fragment slot="prev">
+    <a href="/docs/installation" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      ← Installation
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/tui" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Terminal UI (TUI) &rarr;
+    </a>
+  </fragment>
+</DocsLayout>
+
+<style>
+  .hover-card:hover {
+    border-color: var(--color-teal-dim);
+    transform: translateY(-2px);
+  }
+</style>

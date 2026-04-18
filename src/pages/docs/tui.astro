@@ -1,0 +1,192 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Terminal UI" description="Navigate your infrastructure with Voxeltron's keyboard-driven terminal interface.">
+  <h1>Terminal UI</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron ships a rich terminal interface built with
+    <a href="https://github.com/charmbracelet/bubbletea" style="color: var(--color-teal);">Bubbletea</a>.
+    It connects to the daemon over gRPC and gives you full control of your platform without leaving the terminal.
+  </p>
+
+  <!-- Overview -->
+  <h2 id="overview" style="font-family: var(--font-display);">Overview</h2>
+  <p>
+    The <code style="font-family: var(--font-mono);">voxeltron</code> binary is a standalone Go program that communicates
+    with <code style="font-family: var(--font-mono);">voxeltrond</code> over gRPC. Every action you can take in the TUI
+    maps to one or more gRPC calls — there is no hidden state, no local database, and no background process.
+    Close the TUI and nothing changes on the server.
+  </p>
+
+  <div class="callout info">
+    The TUI is the primary interface for self-hosted Voxeltron. If you use Voxeltron Cloud, you also get a web dashboard,
+    but the TUI works there too.
+  </div>
+
+  <!-- Key Views -->
+  <h2 id="views" style="font-family: var(--font-display);">Key Views</h2>
+  <p>
+    The interface is organized into discrete views, each focused on one operational concern.
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">Dashboard</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Live sparklines for CPU, memory, and request rate. Service health indicators and deployment status at a glance.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">Deployments</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Streamed build logs, release history, and one-key rollback. Filter by app or browse all deployments.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">Databases</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Provision, inspect, and manage PostgreSQL, MySQL, Redis, and MongoDB instances. View connection strings and trigger backups.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">AI Panel</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Ask questions in natural language, execute runbooks, and get contextual suggestions — all without leaving the terminal.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <h3 style="margin-top: 0;">Configuration</h3>
+      <p style="color: var(--color-text-2); margin-bottom: 0;">
+        Edit environment variables, secrets, scaling rules, and domain bindings. Changes are applied on the next deploy or instantly via hot-reload.
+      </p>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <h2 id="navigation" style="font-family: var(--font-display);">Keyboard Navigation</h2>
+  <p>
+    The TUI is fully keyboard-driven. No mouse required.
+  </p>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: 0.9rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border);">
+          <th style="text-align: left; padding: 10px 16px;">Key</th>
+          <th style="text-align: left; padding: 10px 16px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 16px;"><code>Tab</code> / <code>Shift+Tab</code></td>
+          <td style="padding: 10px 16px;">Switch between views</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 16px;"><code>j</code> / <code>k</code></td>
+          <td style="padding: 10px 16px;">Move up / down in lists</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 16px;"><code>Enter</code></td>
+          <td style="padding: 10px 16px;">Select / confirm</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 16px;"><code>/</code></td>
+          <td style="padding: 10px 16px;">Search / filter</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 16px;"><code>?</code></td>
+          <td style="padding: 10px 16px;">Show help overlay</td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 16px;"><code>q</code></td>
+          <td style="padding: 10px 16px;">Quit / back</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- AI Panel -->
+  <h2 id="ai-panel" style="font-family: var(--font-display);">AI Panel</h2>
+  <p>
+    Press <code style="font-family: var(--font-mono);">Tab</code> to navigate to the AI panel, then type a question or command in natural language.
+  </p>
+
+  <pre><code style="font-family: var(--font-mono);">&gt; Why is my Rails app returning 502s?
+
+Checking deployment status for rails-app...
+Last deploy: 4 minutes ago (v23 → v24)
+Health check failing on /health — container OOMKilled (256Mi limit).
+
+Suggested fix: increase memory limit to 512Mi.
+Run `voxeltron config set rails-app MEMORY=512Mi`? [y/N]</code></pre>
+
+  <p>The AI panel supports three interaction modes:</p>
+  <ul>
+    <li><strong>Natural language queries</strong> — ask about service health, logs, configuration, and costs.</li>
+    <li><strong>Tool execution with confirmation</strong> — the AI suggests commands and waits for your explicit approval before running them.</li>
+    <li><strong>Skill and runbook streaming</strong> — trigger multi-step playbooks (e.g. "rotate database credentials") and watch each step execute in real time.</li>
+  </ul>
+
+  <div class="callout info">
+    Tool execution always requires confirmation. The AI will never make changes to your infrastructure without your explicit approval.
+  </div>
+
+  <!-- Connection -->
+  <h2 id="connection" style="font-family: var(--font-display);">Connecting to the Daemon</h2>
+  <p>
+    The TUI connects to <code style="font-family: var(--font-mono);">voxeltrond</code> over gRPC with TLS.
+    By default it looks for the daemon on <code style="font-family: var(--font-mono);">localhost:7443</code>.
+  </p>
+
+  <pre><code style="font-family: var(--font-mono);"># Connect to local daemon (default)
+voxeltron
+
+# Connect to a remote server
+voxeltron --host myserver.example.com
+
+# Connect to a specific port
+voxeltron --host myserver.example.com --port 8443</code></pre>
+
+  <p>
+    The connection uses mutual TLS by default. On first run, the TUI generates a client certificate
+    and registers it with the daemon. You can also provide your own certificates:
+  </p>
+
+  <pre><code style="font-family: var(--font-mono);">voxeltron --cert /path/to/client.crt --key /path/to/client.key</code></pre>
+
+  <!-- Installation -->
+  <h2 id="installation" style="font-family: var(--font-display);">Installation</h2>
+  <p>
+    The TUI is distributed as a single static binary. Install it with Homebrew or download it directly.
+  </p>
+
+  <h3>Homebrew (macOS and Linux)</h3>
+  <pre><code style="font-family: var(--font-mono);">brew install voxeltron/tap/voxeltron</code></pre>
+
+  <h3>Direct Download</h3>
+  <pre><code style="font-family: var(--font-mono);"># macOS (Apple Silicon)
+curl -fsSL https://get.voxeltron.dev/tui/darwin-arm64 -o voxeltron
+chmod +x voxeltron
+sudo mv voxeltron /usr/local/bin/
+
+# Linux (x86_64)
+curl -fsSL https://get.voxeltron.dev/tui/linux-amd64 -o voxeltron
+chmod +x voxeltron
+sudo mv voxeltron /usr/local/bin/</code></pre>
+
+  <p>Verify the installation:</p>
+  <pre><code style="font-family: var(--font-mono);">voxeltron --version</code></pre>
+
+  <fragment slot="prev">
+    <a href="/docs/first-deployment" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; First Deployment
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/databases" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Databases &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

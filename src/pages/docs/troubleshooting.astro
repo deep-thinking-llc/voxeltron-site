@@ -1,0 +1,34 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Troubleshooting" description="Diagnose and resolve common Voxeltron operator failures.">
+  <h1>Troubleshooting</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Fast diagnosis guide for the most common daemon, deployment, TLS, backup, and release issues.
+  </p>
+
+  <h2>TUI cannot connect to daemon</h2>
+  <pre><code style="font-family: var(--font-mono);">sudo systemctl status voxeltrond
+sudo journalctl -u voxeltrond -n 200 --no-pager
+ss -ltnp | grep 7443</code></pre>
+
+  <h2>Deployment fails during build/import</h2>
+  <pre><code style="font-family: var(--font-mono);">docker ps -a
+sudo journalctl -u voxeltrond -n 300 --no-pager
+cargo test -p voxeltrond import::tests::</code></pre>
+
+  <h2>TLS certificate or domain issues</h2>
+  <pre><code style="font-family: var(--font-mono);">sudo journalctl -u voxeltrond | grep -i -E 'acme|cert|tls|challenge'</code></pre>
+
+  <h2>Backup/release integrity verification</h2>
+  <pre><code style="font-family: var(--font-mono);">./scripts/release/verify-release-artifacts.sh dist</code></pre>
+
+  <h2>Manual release failures on build-mac</h2>
+  <pre><code style="font-family: var(--font-mono);">./scripts/release/manual-release.sh vX.Y.Z --dry-run
+./scripts/release/manual-release.sh vX.Y.Z</code></pre>
+
+  <div class="callout warning">
+    If unresolved, escalate using the support process and include logs, timestamp, version, and exact command output.
+  </div>
+</DocsLayout>

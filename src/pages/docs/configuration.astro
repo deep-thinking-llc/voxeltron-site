@@ -1,0 +1,395 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Configuration" description="Complete reference for the Voxeltron daemon configuration file.">
+  <h1>Configuration</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    The Voxeltron daemon is configured via a single TOML file. Every setting has a sensible default,
+    so you only need to specify what you want to change.
+  </p>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p>
+    The daemon reads its configuration from <code>/etc/voxeltron/config.toml</code> at startup.
+    You can override the path with the <code>--config</code> flag:
+  </p>
+  <pre><code>voxeltrond --config /path/to/config.toml</code></pre>
+  <p>
+    Any setting in the config file can also be overridden via environment variables using the
+    <code>VOXELTRON_</code> prefix. See <a href="#environment-overrides" style="color: var(--color-teal);">Environment Variable Overrides</a> below.
+  </p>
+
+  <!-- Core Settings -->
+  <h2 id="core-settings">Core Settings</h2>
+  <p>Top-level keys that control how the daemon binds and stores data.</p>
+  <pre><code>bind_address = "0.0.0.0"
+grpc_port    = 7443
+data_dir     = "/var/lib/voxeltron"
+log_level    = "info"</code></pre>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px;">Key</th>
+          <th style="padding: 10px 12px;">Type</th>
+          <th style="padding: 10px 12px;">Default</th>
+          <th style="padding: 10px 12px;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>bind_address</code></td>
+          <td style="padding: 10px 12px;">string</td>
+          <td style="padding: 10px 12px;"><code>"0.0.0.0"</code></td>
+          <td style="padding: 10px 12px;">IP address the gRPC server listens on.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>grpc_port</code></td>
+          <td style="padding: 10px 12px;">integer</td>
+          <td style="padding: 10px 12px;"><code>7443</code></td>
+          <td style="padding: 10px 12px;">Port for the gRPC API. The TUI connects here.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>data_dir</code></td>
+          <td style="padding: 10px 12px;">string</td>
+          <td style="padding: 10px 12px;"><code>"/var/lib/voxeltron"</code></td>
+          <td style="padding: 10px 12px;">Root directory for application data, build cache, and database volumes.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>log_level</code></td>
+          <td style="padding: 10px 12px;">string</td>
+          <td style="padding: 10px 12px;"><code>"info"</code></td>
+          <td style="padding: 10px 12px;">Log verbosity: <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TLS Section -->
+  <h2 id="tls">[tls]</h2>
+  <p>Controls automatic TLS certificate provisioning via ACME (Let's Encrypt).</p>
+  <pre><code>[tls]
+acme_email     = "ops@example.com"
+acme_directory = "https://acme-v02.api.letsencrypt.org/directory"</code></pre>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>ACME (Production)</strong>
+      <p style="margin: 8px 0 0; font-size: 0.9rem; color: var(--color-text-2);">
+        Set <code>acme_email</code> to a valid address. Certificates are automatically requested
+        and renewed via Let's Encrypt.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>Self-Signed Fallback</strong>
+      <p style="margin: 8px 0 0; font-size: 0.9rem; color: var(--color-text-2);">
+        If <code>acme_email</code> is omitted, the daemon generates a self-signed certificate
+        on first startup. Useful for local development and air-gapped environments.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout info">
+    Use the Let's Encrypt staging directory during testing to avoid rate limits:
+    <code>https://acme-staging-v02.api.letsencrypt.org/directory</code>
+  </div>
+
+  <!-- Database Section -->
+  <h2 id="database">[database]</h2>
+  <p>Docker images used when provisioning managed database instances.</p>
+  <pre><code>[database]
+postgres_image = "postgres:16-alpine"
+mysql_image    = "mysql:8.4"
+redis_image    = "redis:7-alpine"
+mongo_image    = "mongo:7"</code></pre>
+  <p>
+    Override these to pin a specific version or use a private registry mirror.
+    The daemon pulls the image on first database creation if it is not already present locally.
+  </p>
+
+  <!-- Backup Section -->
+  <h2 id="backup">[backup]</h2>
+  <p>Automated backup schedule and storage target.</p>
+  <pre><code>[backup]
+schedule = "0 3 * * *"   # cron expression — daily at 03:00
+target   = "local"       # "local" or "s3"
+
+[backup.s3]
+bucket          = "my-voxeltron-backups"
+region          = "us-east-1"
+endpoint        = ""                        # custom S3-compatible endpoint (optional)
+access_key_id   = ""
+secret_access_key = ""</code></pre>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px;">Key</th>
+          <th style="padding: 10px 12px;">Default</th>
+          <th style="padding: 10px 12px;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>schedule</code></td>
+          <td style="padding: 10px 12px;"><code>"0 3 * * *"</code></td>
+          <td style="padding: 10px 12px;">Cron expression for backup frequency.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>target</code></td>
+          <td style="padding: 10px 12px;"><code>"local"</code></td>
+          <td style="padding: 10px 12px;">Storage backend: <code>local</code> (writes to <code>data_dir/backups/</code>) or <code>s3</code>.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>s3.bucket</code></td>
+          <td style="padding: 10px 12px;">&mdash;</td>
+          <td style="padding: 10px 12px;">S3 bucket name. Required when <code>target = "s3"</code>.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>s3.region</code></td>
+          <td style="padding: 10px 12px;"><code>"us-east-1"</code></td>
+          <td style="padding: 10px 12px;">AWS region or S3-compatible region identifier.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>s3.endpoint</code></td>
+          <td style="padding: 10px 12px;">&mdash;</td>
+          <td style="padding: 10px 12px;">Custom endpoint for S3-compatible storage (MinIO, R2, etc.).</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>s3.access_key_id</code></td>
+          <td style="padding: 10px 12px;">&mdash;</td>
+          <td style="padding: 10px 12px;">S3 access key.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>s3.secret_access_key</code></td>
+          <td style="padding: 10px 12px;">&mdash;</td>
+          <td style="padding: 10px 12px;">S3 secret key. Prefer <code>VOXELTRON_BACKUP_S3_SECRET_ACCESS_KEY</code> env var.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    For S3 credentials, prefer environment variable overrides over storing secrets in the config file.
+  </div>
+
+  <!-- Secrets Section -->
+  <h2 id="secrets">[secrets]</h2>
+  <p>Controls how application secrets (env vars marked as sensitive) are stored and retrieved.</p>
+  <pre><code>[secrets]
+provider = "local"   # "local", "openbao", or "infisical"
+
+[secrets.openbao]
+address    = "https://vault.internal:8200"
+mount_path = "secret"
+role_id    = ""
+secret_id  = ""</code></pre>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>Local</strong>
+      <p style="margin: 8px 0 0; font-size: 0.9rem; color: var(--color-text-2);">
+        Secrets are encrypted at rest in <code>data_dir/secrets/</code>. Good for single-node setups.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>OpenBao / Vault</strong>
+      <p style="margin: 8px 0 0; font-size: 0.9rem; color: var(--color-text-2);">
+        Connects to an OpenBao (or HashiCorp Vault) instance via AppRole auth. Recommended for production clusters.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>Infisical</strong>
+      <p style="margin: 8px 0 0; font-size: 0.9rem; color: var(--color-text-2);">
+        Integrates with Infisical for team-based secrets management. Configure via environment variables.
+      </p>
+    </div>
+  </div>
+
+  <!-- Cluster Section -->
+  <h2 id="cluster">[cluster]</h2>
+  <p>Multi-node cluster settings. Omit this section entirely for single-server deployments.</p>
+  <pre><code>[cluster]
+node_id             = "node-1"
+seeds               = ["10.0.0.2:7946", "10.0.0.3:7946"]
+cloud_discovery_url = ""</code></pre>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px;">Key</th>
+          <th style="padding: 10px 12px;">Default</th>
+          <th style="padding: 10px 12px;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>node_id</code></td>
+          <td style="padding: 10px 12px;">hostname</td>
+          <td style="padding: 10px 12px;">Unique identifier for this node in the cluster. Defaults to the system hostname.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>seeds</code></td>
+          <td style="padding: 10px 12px;"><code>[]</code></td>
+          <td style="padding: 10px 12px;">List of <code>host:port</code> addresses of existing cluster members to join on startup.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>cloud_discovery_url</code></td>
+          <td style="padding: 10px 12px;">&mdash;</td>
+          <td style="padding: 10px 12px;">URL for cloud-based node discovery (Voxeltron Cloud managed clusters only).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- AI Section -->
+  <h2 id="ai">[ai]</h2>
+  <p>Configure the AI assistant that powers natural-language DevOps commands.</p>
+  <pre><code>[ai]
+provider         = "anthropic"   # "anthropic" or "openai"
+model            = "claude-sonnet-4-20250514"
+api_key_env      = "ANTHROPIC_API_KEY"
+permission_level = "suggest"     # "suggest", "confirm", or "auto"</code></pre>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px;">Key</th>
+          <th style="padding: 10px 12px;">Default</th>
+          <th style="padding: 10px 12px;">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>provider</code></td>
+          <td style="padding: 10px 12px;"><code>"anthropic"</code></td>
+          <td style="padding: 10px 12px;">AI backend: <code>anthropic</code> or <code>openai</code>.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>model</code></td>
+          <td style="padding: 10px 12px;"><code>"claude-sonnet-4-20250514"</code></td>
+          <td style="padding: 10px 12px;">Model identifier. Must be supported by the chosen provider.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>api_key_env</code></td>
+          <td style="padding: 10px 12px;"><code>"ANTHROPIC_API_KEY"</code></td>
+          <td style="padding: 10px 12px;">Name of the environment variable holding the API key. The key itself is never stored in config.</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--color-border);">
+          <td style="padding: 10px 12px;"><code>permission_level</code></td>
+          <td style="padding: 10px 12px;"><code>"suggest"</code></td>
+          <td style="padding: 10px 12px;">
+            <code>suggest</code> &mdash; AI proposes commands, you approve.<br>
+            <code>confirm</code> &mdash; AI executes after explicit confirmation.<br>
+            <code>auto</code> &mdash; AI executes non-destructive commands automatically.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout info">
+    The AI API key is read from the environment variable named in <code>api_key_env</code>, not from the config file.
+    This ensures secrets never touch disk in plain text.
+  </div>
+
+  <!-- Full Example -->
+  <h2 id="full-example">Full Example</h2>
+  <p>A complete <code>config.toml</code> with all sections:</p>
+  <pre><code># /etc/voxeltron/config.toml
+
+bind_address = "0.0.0.0"
+grpc_port    = 7443
+data_dir     = "/var/lib/voxeltron"
+log_level    = "info"
+
+[tls]
+acme_email     = "ops@example.com"
+acme_directory = "https://acme-v02.api.letsencrypt.org/directory"
+
+[database]
+postgres_image = "postgres:16-alpine"
+mysql_image    = "mysql:8.4"
+redis_image    = "redis:7-alpine"
+mongo_image    = "mongo:7"
+
+[backup]
+schedule = "0 3 * * *"
+target   = "s3"
+
+[backup.s3]
+bucket          = "my-voxeltron-backups"
+region          = "us-east-1"
+endpoint        = ""
+access_key_id   = "AKIA..."
+secret_access_key = ""   # prefer env var
+
+[secrets]
+provider = "openbao"
+
+[secrets.openbao]
+address    = "https://vault.internal:8200"
+mount_path = "secret"
+role_id    = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+secret_id  = ""   # prefer env var
+
+[cluster]
+node_id = "node-1"
+seeds   = ["10.0.0.2:7946", "10.0.0.3:7946"]
+
+[ai]
+provider         = "anthropic"
+model            = "claude-sonnet-4-20250514"
+api_key_env      = "ANTHROPIC_API_KEY"
+permission_level = "confirm"</code></pre>
+
+  <!-- Environment Variable Overrides -->
+  <h2 id="environment-overrides">Environment Variable Overrides</h2>
+  <p>
+    Every config key can be overridden via an environment variable with the <code>VOXELTRON_</code> prefix.
+    Nested keys use underscores to replace dots and section separators.
+  </p>
+  <pre><code># Core settings
+export VOXELTRON_BIND_ADDRESS="127.0.0.1"
+export VOXELTRON_GRPC_PORT="8443"
+export VOXELTRON_LOG_LEVEL="debug"
+
+# Nested sections
+export VOXELTRON_TLS_ACME_EMAIL="ops@example.com"
+export VOXELTRON_BACKUP_S3_BUCKET="prod-backups"
+export VOXELTRON_BACKUP_S3_SECRET_ACCESS_KEY="wJalr..."
+export VOXELTRON_SECRETS_OPENBAO_SECRET_ID="xxxxxxxx"
+export VOXELTRON_AI_PROVIDER="openai"</code></pre>
+
+  <div class="callout info">
+    Environment variables take precedence over values in <code>config.toml</code>. This makes it easy
+    to inject secrets via your init system, container orchestrator, or CI pipeline without modifying the config file.
+  </div>
+
+  <p style="margin-top: 24px;">
+    Precedence order (highest to lowest):
+  </p>
+  <ol>
+    <li>Environment variables (<code>VOXELTRON_*</code>)</li>
+    <li>Config file (<code>/etc/voxeltron/config.toml</code>)</li>
+    <li>Built-in defaults</li>
+  </ol>
+
+  <fragment slot="prev">
+    <a href="/docs/domains-tls" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; Domains & TLS
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/cli-reference" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      CLI Reference &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

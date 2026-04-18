@@ -1,0 +1,208 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Domains & TLS" description="Custom domains, automatic HTTPS, and certificate management with Voxeltron.">
+  <h1>Domains & TLS</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron provides automatic HTTPS for every app via ACME/Let&rsquo;s Encrypt, with support for custom domains, wildcard certificates, and zero-downtime renewal.
+  </p>
+
+  <!-- Overview -->
+  <h2 id="overview">Overview</h2>
+  <p>
+    Every app deployed on Voxeltron gets a TLS certificate automatically. The daemon handles the full lifecycle &mdash; issuance, verification, installation, and renewal &mdash; so you never touch a certificate file.
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong style="color: var(--color-teal);">Automatic HTTPS</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        ACME/Let&rsquo;s Encrypt certificates issued and renewed without intervention.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong style="color: var(--color-teal);">Custom Domains</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        Point any domain at your server and Voxeltron provisions a certificate automatically.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong style="color: var(--color-teal);">Wildcard Certs</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        Secure <code style="font-family: var(--font-mono);">*.yourdomain.com</code> with a single DNS-01 challenge.
+      </p>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong style="color: var(--color-teal);">Self-Signed Fallback</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        Auto-generated self-signed certs for local dev and internal networks.
+      </p>
+    </div>
+  </div>
+
+  <!-- ACME / Let's Encrypt -->
+  <h2 id="acme" style="margin-top: 48px;">ACME / Let&rsquo;s Encrypt</h2>
+  <p>
+    Voxeltron uses the ACME protocol to obtain trusted TLS certificates from Let&rsquo;s Encrypt (or any ACME-compatible CA). The daemon acts as an ACME client, handling challenges and key management internally.
+  </p>
+
+  <h3>HTTP-01 Challenge Flow</h3>
+  <p>
+    The default verification method is the HTTP-01 challenge. Here&rsquo;s how it works:
+  </p>
+  <ol>
+    <li>Voxeltron requests a certificate for the domain from the ACME directory.</li>
+    <li>The CA responds with a token and a challenge URL.</li>
+    <li>The daemon places the token at <code style="font-family: var(--font-mono);">http://&lt;domain&gt;/.well-known/acme-challenge/&lt;token&gt;</code>.</li>
+    <li>The CA fetches the token over HTTP to verify domain ownership.</li>
+    <li>On success, the CA issues a signed certificate and Voxeltron installs it immediately.</li>
+  </ol>
+
+  <div class="callout info">
+    Port 80 must be reachable from the internet for HTTP-01 challenges. The daemon automatically redirects all other HTTP traffic to HTTPS.
+  </div>
+
+  <h3>Staging vs Production</h3>
+  <p>
+    During setup, use the Let&rsquo;s Encrypt staging directory to avoid rate limits. Staging certificates are not trusted by browsers but are functionally identical for testing.
+  </p>
+  <pre><code style="font-family: var(--font-mono);"># Staging (for testing)
+acme_directory = "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+# Production (default)
+acme_directory = "https://acme-v02.api.letsencrypt.org/directory"</code></pre>
+
+  <h3>Auto-Renewal</h3>
+  <p>
+    A background task checks certificate expiry daily. Certificates are renewed when they have fewer than 30 days remaining &mdash; well within the 90-day Let&rsquo;s Encrypt lifetime. Renewal uses the same challenge method as initial issuance and requires zero downtime.
+  </p>
+
+  <!-- Custom Domains -->
+  <h2 id="custom-domains" style="margin-top: 48px;">Custom Domains</h2>
+  <p>
+    Add a custom domain to any app with a single command. Voxeltron verifies ownership and provisions a certificate.
+  </p>
+
+  <h3>Adding a Domain</h3>
+  <pre><code style="font-family: var(--font-mono);">voxeltron domains add myapp.example.com --app my-app</code></pre>
+
+  <h3>DNS Configuration</h3>
+  <p>
+    Point your domain at the Voxeltron server using one of these DNS record types:
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>A Record</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        Point the domain directly at your server&rsquo;s IP address. Best for apex domains.
+      </p>
+      <pre style="margin-top: 12px;"><code style="font-family: var(--font-mono);">myapp.example.com.  A  203.0.113.10</code></pre>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <strong>CNAME Record</strong>
+      <p style="margin: 8px 0 0; color: var(--color-text-2); font-size: 0.95rem;">
+        Alias to your Voxeltron hostname. Best for subdomains.
+      </p>
+      <pre style="margin-top: 12px;"><code style="font-family: var(--font-mono);">myapp.example.com.  CNAME  voxeltron.example.com.</code></pre>
+    </div>
+  </div>
+
+  <h3>Verification</h3>
+  <p>
+    After adding a domain, Voxeltron verifies DNS resolution before requesting a certificate. Check status with:
+  </p>
+  <pre><code style="font-family: var(--font-mono);">voxeltron domains list --app my-app
+
+DOMAIN                  STATUS       CERTIFICATE
+myapp.example.com       verified     valid (expires 2026-05-20)
+staging.example.com     pending      awaiting DNS</code></pre>
+
+  <!-- Wildcard Certificates -->
+  <h2 id="wildcard-certificates" style="margin-top: 48px;">Wildcard Certificates</h2>
+  <p>
+    Wildcard certificates cover all subdomains under a single domain, e.g. <code style="font-family: var(--font-mono);">*.yourdomain.com</code>. They require the DNS-01 challenge method since the CA must verify control of the entire zone.
+  </p>
+
+  <h3>DNS-01 Challenge</h3>
+  <p>
+    Instead of placing a token on a web server, DNS-01 requires you to create a TXT record:
+  </p>
+  <ol>
+    <li>Voxeltron requests a wildcard certificate from the ACME directory.</li>
+    <li>The CA returns a challenge value.</li>
+    <li>You (or an automated DNS provider integration) create a TXT record at <code style="font-family: var(--font-mono);">_acme-challenge.yourdomain.com</code>.</li>
+    <li>The CA queries DNS to verify the record.</li>
+    <li>On success, a wildcard certificate is issued for <code style="font-family: var(--font-mono);">*.yourdomain.com</code>.</li>
+  </ol>
+
+  <pre><code style="font-family: var(--font-mono);">voxeltron domains add "*.yourdomain.com" --app my-app --challenge dns-01</code></pre>
+
+  <div class="callout info">
+    For fully automated DNS-01 challenges, configure a supported DNS provider in your <code>voxeltron.toml</code>. Manual TXT record creation is supported as a fallback.
+  </div>
+
+  <!-- Self-Signed Certificates -->
+  <h2 id="self-signed" style="margin-top: 48px;">Self-Signed Certificates</h2>
+  <p>
+    For local development and internal networks where public CA validation isn&rsquo;t possible, Voxeltron auto-generates self-signed certificates on first boot. These provide encrypted connections without external dependencies.
+  </p>
+  <pre><code style="font-family: var(--font-mono);">[tls]
+mode = "self-signed"   # Options: "acme" (default), "self-signed", "manual"</code></pre>
+
+  <div class="callout info">
+    Self-signed certificates trigger browser warnings. For local development, add the generated CA to your system trust store, or use <code>curl --insecure</code> for API testing.
+  </div>
+
+  <!-- Certificate Storage -->
+  <h2 id="certificate-storage" style="margin-top: 48px;">Certificate Storage</h2>
+  <p>
+    All certificates and private keys are stored on disk in the Voxeltron data directory:
+  </p>
+  <pre><code style="font-family: var(--font-mono);">/var/lib/voxeltron/certs/
+  ├── myapp.example.com/
+  │   ├── cert.pem
+  │   ├── key.pem
+  │   └── chain.pem
+  └── acme-account.json</code></pre>
+
+  <p>
+    The renewal background task runs daily and checks every certificate&rsquo;s expiry. Certificates within 30 days of expiration are renewed automatically. The task logs all renewal attempts to the audit log.
+  </p>
+
+  <div class="callout info">
+    Private keys are stored with <code>0600</code> permissions and are readable only by the <code>voxeltron</code> system user. Back up the <code>certs/</code> directory alongside your regular data backups.
+  </div>
+
+  <!-- Configuration -->
+  <h2 id="configuration" style="margin-top: 48px;">Configuration</h2>
+  <p>
+    TLS settings are defined in <code style="font-family: var(--font-mono);">voxeltron.toml</code>:
+  </p>
+  <pre><code style="font-family: var(--font-mono);">[tls]
+acme_email = "admin@example.com"
+acme_directory = "https://acme-v02.api.letsencrypt.org/directory"
+
+# Optional: DNS provider for DNS-01 challenges
+# dns_provider = "cloudflare"
+# dns_api_token = "${'${CLOUDFLARE_API_TOKEN}'}" 
+
+# Optional: certificate storage path (default: /var/lib/voxeltron/certs)
+# cert_path = "/var/lib/voxeltron/certs"
+
+# Optional: renewal check interval in hours (default: 24)
+# renewal_interval = 24</code></pre>
+
+  <fragment slot="prev">
+    <a href="/docs/plugins" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; Plugins
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/configuration" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Configuration &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

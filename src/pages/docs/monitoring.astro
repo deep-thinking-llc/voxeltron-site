@@ -1,0 +1,126 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Monitoring & Alerts" description="Built-in metrics, log aggregation, and alerting.">
+	<h1>Monitoring & Alerts</h1>
+	<p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+		Built-in monitoring with no external services required. Voxeltron collects CPU, memory, and network metrics from every Docker container, aggregates logs, and fires alerts when thresholds are breached.
+	</p>
+
+	<h2>Metrics Collection</h2>
+	<p style="color: var(--color-text-2); margin-bottom: 16px;">
+		The <strong>MetricsCollector</strong> polls the Docker stats API at a configurable interval, capturing per-container resource usage. Data is persisted in the <strong>MetricsStore</strong> (backed by SQLite) for historical queries and dashboard rendering.
+	</p>
+	<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+		<h3 style="margin-top: 0;">Collected Metrics</h3>
+		<ul style="color: var(--color-text-2); margin: 0;">
+			<li><strong>CPU</strong> — usage percentage per core and aggregate</li>
+			<li><strong>Memory</strong> — RSS, cache, swap, and limit</li>
+			<li><strong>Network</strong> — bytes and packets in/out per interface</li>
+			<li><strong>Disk I/O</strong> — read/write bytes and operations</li>
+			<li><strong>Container state</strong> — running, stopped, restarting, OOM-killed</li>
+		</ul>
+	</div>
+
+	<h2>Log Aggregation</h2>
+	<p style="color: var(--color-text-2); margin-bottom: 16px;">
+		Container logs are streamed in real time via the Docker API and indexed for fast retrieval. Logs are queryable by deployment, time range, and level (<code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>).
+	</p>
+	<pre><code># Query logs via the TUI
+voxeltron logs my-app --since 1h --level error
+
+# Stream live logs
+voxeltron logs my-app --follow</code></pre>
+
+	<h2>Alerting</h2>
+	<p style="color: var(--color-text-2); margin-bottom: 16px;">
+		Threshold-based alerts fire when resource usage exceeds configured limits. Each alert rule targets a specific metric and can route notifications to one or more channels.
+	</p>
+	<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+		<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;">
+			<h3 style="margin-top: 0; color: var(--color-teal);">CPU Alert</h3>
+			<p style="color: var(--color-text-2); margin: 0;">Fires when CPU usage exceeds a threshold (e.g. &gt; 90%) for a sustained duration.</p>
+		</div>
+		<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;">
+			<h3 style="margin-top: 0; color: var(--color-teal);">Memory Alert</h3>
+			<p style="color: var(--color-text-2); margin: 0;">Fires when memory usage exceeds a threshold (e.g. &gt; 85%) to catch leaks before OOM.</p>
+		</div>
+		<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;">
+			<h3 style="margin-top: 0; color: var(--color-teal);">Error Rate Alert</h3>
+			<p style="color: var(--color-text-2); margin: 0;">Fires when the error log rate exceeds a count per window (e.g. &gt; 50 errors/min).</p>
+		</div>
+		<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px;">
+			<h3 style="margin-top: 0; color: var(--color-teal);">Disk Alert</h3>
+			<p style="color: var(--color-text-2); margin: 0;">Fires when disk usage crosses a threshold to prevent storage exhaustion.</p>
+		</div>
+	</div>
+
+	<h3>Alert Channels</h3>
+	<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+		<ul style="color: var(--color-text-2); margin: 0;">
+			<li><strong>Webhook</strong> — POST JSON payloads to any HTTP endpoint</li>
+			<li><strong>Email</strong> — SMTP-based notifications with configurable recipients</li>
+			<li><strong>Slack</strong> — delivered via WASM plugins for full customization</li>
+		</ul>
+	</div>
+
+	<h2>Configuration</h2>
+	<p style="color: var(--color-text-2); margin-bottom: 16px;">
+		Configure monitoring in <code>/etc/voxeltron/config.toml</code> under the <code>[monitoring]</code> section:
+	</p>
+	<pre><code>[monitoring]
+enabled = true
+interval_seconds = 15          # Metrics polling interval
+retention_days = 30            # How long to keep historical data
+log_level_filter = "info"      # Minimum log level to index
+
+[monitoring.alerts]
+enabled = true
+evaluation_interval = "60s"    # How often alert rules are evaluated
+
+[[monitoring.alerts.rules]]
+name = "high-cpu"
+metric = "cpu_percent"
+threshold = 90.0
+duration = "5m"
+channels = ["webhook", "email"]
+
+[[monitoring.alerts.rules]]
+name = "high-memory"
+metric = "memory_percent"
+threshold = 85.0
+duration = "2m"
+channels = ["webhook"]
+
+[[monitoring.alerts.rules]]
+name = "error-spike"
+metric = "error_rate"
+threshold = 50.0               # errors per minute
+duration = "1m"
+channels = ["webhook", "email"]
+
+[monitoring.alerts.channels.webhook]
+url = "https://hooks.example.com/voxeltron"
+
+[monitoring.alerts.channels.email]
+smtp_host = "smtp.example.com"
+smtp_port = 587
+from = "alerts@example.com"
+to = ["ops@example.com"]</code></pre>
+
+	<h2>AI Integration</h2>
+	<p style="color: var(--color-text-2); margin-bottom: 16px;">
+		The built-in AI DevOps agent can interact with the monitoring subsystem through dedicated tools:
+	</p>
+	<div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+		<ul style="color: var(--color-text-2); margin: 0;">
+			<li><strong style="color: var(--color-teal);">query_metrics</strong> — retrieve CPU, memory, and network metrics for a deployment over a time range</li>
+			<li><strong style="color: var(--color-teal);">query_logs</strong> — search and filter container logs by deployment, level, and time window</li>
+			<li><strong style="color: var(--color-teal);">list_alerts</strong> — enumerate active and resolved alerts, including firing status and history</li>
+		</ul>
+	</div>
+	<p style="color: var(--color-text-2);">
+		These tools allow the AI agent to diagnose issues, correlate metrics with log events, and surface actionable insights without manual investigation.
+	</p>
+</DocsLayout>

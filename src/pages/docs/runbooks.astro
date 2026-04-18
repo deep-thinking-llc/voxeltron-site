@@ -1,0 +1,200 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Runbooks & Skills" description="Multi-step automation with approval gates and streaming progress.">
+  <h1>Runbooks & Skills</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron's AI agent uses a <strong>3-layer architecture</strong> to handle everything from
+    single commands to complex multi-step operational procedures — with built-in approval gates,
+    rollback support, and real-time streaming progress in the TUI.
+  </p>
+
+  <div class="callout tip">
+    The 3-layer architecture: <strong>Tools</strong> are atomic actions (query logs, restart a container).
+    <strong>Skills</strong> compose multiple tools into a diagnostic or remediation workflow.
+    <strong>Runbooks</strong> are full operational procedures with approval gates, rollback steps,
+    and structured output — the kind of thing you'd hand to an on-call engineer at 3am.
+  </div>
+
+  <h2>Built-in Tools</h2>
+
+  <p>10 tools are available out of the box. Each tool is an atomic operation the AI agent can invoke:</p>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.8rem;">Tool</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2);">Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          { id: 'query_logs', desc: 'Search and filter application logs' },
+          { id: 'query_metrics', desc: 'Query CPU, memory, network, and custom metrics' },
+          { id: 'list_alerts', desc: 'List active and recent alerts' },
+          { id: 'project_status', desc: 'Get project health and deployment status' },
+          { id: 'list_deployments', desc: 'List deployment history with metadata' },
+          { id: 'container_action', desc: 'Start, stop, or restart containers' },
+          { id: 'scale_service', desc: 'Scale a service up or down' },
+          { id: 'rollback', desc: 'Roll back to a previous deployment' },
+          { id: 'create_backup', desc: 'Create a database or volume backup' },
+          { id: 'rotate_secret', desc: 'Rotate secrets and credentials' },
+        ].map((tool) => (
+          <tr style="border-bottom: 1px solid var(--color-border);">
+            <td style="padding: 10px 12px; font-family: var(--font-mono); color: var(--color-teal); white-space: nowrap;">{tool.id}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2);">{tool.desc}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Built-in Skills</h2>
+
+  <p>Skills compose multiple tools into higher-level diagnostic and remediation workflows.
+    Each skill runs a series of steps, collecting data and making decisions along the way.</p>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.8rem;">Skill</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2);">Description</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2); text-align: center;">Steps</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          { id: 'health-check', desc: 'Comprehensive service health assessment — checks metrics, logs, alerts, and deployment state', steps: 5 },
+          { id: 'deployment-analysis', desc: 'Analyzes a deployment for regressions, error spikes, and performance changes', steps: 6 },
+          { id: 'log-investigation', desc: 'Investigates error patterns, correlates across services, and identifies root cause', steps: 7 },
+          { id: 'cost-optimizer', desc: 'Analyzes resource usage and recommends rightsizing and scaling adjustments', steps: 4 },
+        ].map((skill) => (
+          <tr style="border-bottom: 1px solid var(--color-border);">
+            <td style="padding: 10px 12px; font-family: var(--font-mono); color: var(--color-teal); white-space: nowrap;">{skill.id}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2);">{skill.desc}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2); text-align: center;">{skill.steps}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Built-in Runbooks</h2>
+
+  <p>Runbooks are full operational procedures with approval gates and rollback support.
+    They encode the kind of multi-step remediation an experienced SRE would follow.</p>
+
+  <div style="overflow-x: auto; margin: 20px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--color-border); text-align: left;">
+          <th style="padding: 10px 12px; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.8rem;">Runbook</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2);">Category</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2);">Severity</th>
+          <th style="padding: 10px 12px; color: var(--color-text-2); text-align: center;">Steps</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          { id: 'disk-cleanup', category: 'Infrastructure', severity: 'Warning', steps: 5 },
+          { id: 'restart-loop-detection', category: 'Application', severity: 'Critical', steps: 7 },
+          { id: 'certificate-expiry-renewal', category: 'Security', severity: 'High', steps: 6 },
+        ].map((rb) => (
+          <tr style="border-bottom: 1px solid var(--color-border);">
+            <td style="padding: 10px 12px; font-family: var(--font-mono); color: var(--color-teal); white-space: nowrap;">{rb.id}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2);">{rb.category}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2);">{rb.severity}</td>
+            <td style="padding: 10px 12px; color: var(--color-text-2); text-align: center;">{rb.steps}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Streaming Progress</h2>
+
+  <p>When a skill or runbook executes, the TUI displays real-time step-by-step progress.
+    Each step streams its status as it transitions through <code>pending</code>, <code>running</code>,
+    <code>completed</code>, or <code>failed</code>:</p>
+
+  <pre><code style="color: var(--color-blue);">Running runbook: restart-loop-detection
+────────────────────────────────────────────
+
+<span style="color: var(--color-lime);">[1/7]</span> Identify crash-looping containers .......... <span style="color: var(--color-lime);">done</span>
+<span style="color: var(--color-lime);">[2/7]</span> Collect recent logs from affected pods ...... <span style="color: var(--color-lime);">done</span>
+<span style="color: var(--color-lime);">[3/7]</span> Analyze crash patterns and exit codes ....... <span style="color: var(--color-lime);">done</span>
+<span style="color: var(--color-amber);">[4/7]</span> Check resource limits and OOM events ........ <span style="color: var(--color-amber);">running</span>
+<span style="color: var(--color-muted);">[5/7]</span> Correlate with recent deployments ........... <span style="color: var(--color-muted);">pending</span>
+<span style="color: var(--color-muted);">[6/7]</span> Apply remediation ........................... <span style="color: var(--color-muted);">pending</span>
+<span style="color: var(--color-muted);">[7/7]</span> Verify service stability .................... <span style="color: var(--color-muted);">pending</span></code></pre>
+
+  <p>Progress updates arrive via the gRPC streaming connection between the TUI and daemon,
+    so you see each step the moment it begins — no polling, no waiting for the entire runbook to finish.</p>
+
+  <h2>Approval Gates</h2>
+
+  <p>Runbook steps that modify infrastructure require explicit approval before execution.
+    When a step has <code>approval: required</code>, the TUI pauses and prompts for confirmation:</p>
+
+  <pre><code style="color: var(--color-blue);"><span style="color: var(--color-lime);">[3/5]</span> Identified 4.2 GB of reclaimable space in /var/log
+
+<span style="color: var(--color-amber);">[4/5]</span> Delete old log files and reclaim disk space
+      This will remove 847 files older than 7 days.
+
+<span style="color: var(--color-amber);">      Approve this step? [y] yes  [n] skip</span></code></pre>
+
+  <p>Press <code>y</code> to approve and continue, or <code>n</code> to skip the step.
+    Skipped steps are logged but do not trigger a rollback. If a required step fails after approval,
+    the runbook automatically executes its rollback steps in reverse order.</p>
+
+  <div class="callout warn">
+    Steps with <code>approval: auto</code> execute without prompting — use this only for
+    read-only or non-destructive operations like querying logs or checking status.
+  </div>
+
+  <h2>Custom Runbooks</h2>
+
+  <p>Runbooks are defined in YAML and can be added to your project or shared across your organization.
+    Each runbook specifies its steps, tool invocations, approval requirements, and rollback procedures:</p>
+
+  <pre><code><span style="color: var(--color-muted);"># ~/.config/voxeltron/runbooks/my-runbook.yaml</span>
+<span style="color: var(--color-teal);">id:</span> my-runbook
+<span style="color: var(--color-teal);">name:</span> My Custom Runbook
+<span style="color: var(--color-teal);">category:</span> infrastructure
+<span style="color: var(--color-teal);">steps:</span>
+  - <span style="color: var(--color-teal);">id:</span> step-1
+    <span style="color: var(--color-teal);">name:</span> Check status
+    <span style="color: var(--color-teal);">tool_id:</span> project_status
+    <span style="color: var(--color-teal);">approval:</span> auto
+  - <span style="color: var(--color-teal);">id:</span> step-2
+    <span style="color: var(--color-teal);">name:</span> Restart service
+    <span style="color: var(--color-teal);">tool_id:</span> container_action
+    <span style="color: var(--color-teal);">approval:</span> required
+    <span style="color: var(--color-teal);">parameters:</span>
+      <span style="color: var(--color-teal);">action:</span> restart
+<span style="color: var(--color-teal);">rollback_steps:</span>
+  - <span style="color: var(--color-teal);">id:</span> rb-1
+    <span style="color: var(--color-teal);">name:</span> Revert restart
+    <span style="color: var(--color-teal);">tool_id:</span> container_action
+    <span style="color: var(--color-teal);">parameters:</span>
+      <span style="color: var(--color-teal);">action:</span> restart</code></pre>
+
+  <p>Place custom runbook files in <code>~/.config/voxeltron/runbooks/</code> or in your project's
+    <code>.voxeltron/runbooks/</code> directory. The daemon discovers them at startup and makes them
+    available to the AI agent and TUI.</p>
+
+  <fragment slot="prev">
+    <a href="/docs/ai" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; AI Integration
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/plugins" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Plugin System &rarr;
+    </a>
+  </fragment>
+</DocsLayout>

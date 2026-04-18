@@ -1,0 +1,188 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Upgrading" description="Upgrade methods, rollback procedures, and migration guides for Voxeltron.">
+	<h1>Upgrading & Migration</h1>
+	<p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+		How to upgrade Voxeltron, roll back if something goes wrong, and migrate from other self-hosted PaaS platforms.
+	</p>
+
+	<h2>Upgrade Methods</h2>
+
+	<h3>Homebrew (macOS / Linux)</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> brew upgrade voxeltron</code></pre>
+	<p>Upgrades both the <code>voxeltrond</code> daemon and the <code>voxeltron</code> TUI binary.</p>
+
+	<h3>Debian / Ubuntu</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> sudo apt update && sudo apt upgrade voxeltron</code></pre>
+	<p>The APT package includes systemd service definitions. The daemon is automatically restarted after upgrade.</p>
+
+	<h3>Fedora / RHEL</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> sudo dnf upgrade voxeltron</code></pre>
+
+	<h3>Docker</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> docker pull voxeltron/voxeltrond:latest
+<span style="color: var(--color-teal);">$</span> docker-compose up -d</code></pre>
+	<p>Docker Compose recreates only the daemon container. Your application containers are <strong>not</strong> interrupted.</p>
+
+	<h3>Manual Binary Replacement</h3>
+	<pre><code><span style="color: var(--color-muted)"># Stop the daemon</span>
+<span style="color: var(--color-teal);">$</span> sudo systemctl stop voxeltrond
+
+<span style="color: var(--color-muted)"># Replace binaries</span>
+<span style="color: var(--color-teal);">$</span> sudo cp voxeltrond /usr/local/bin/voxeltrond
+<span style="color: var(--color-teal);">$</span> sudo cp voxeltron /usr/local/bin/voxeltron
+
+<span style="color: var(--color-muted)"># Restart</span>
+<span style="color: var(--color-teal);">$</span> sudo systemctl start voxeltrond</code></pre>
+
+	<h3>Install Script (Re-run)</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> curl -sSL https://get.voxeltron.dev | bash</code></pre>
+	<p>Re-running the install script detects the existing installation and upgrades in place. Configuration and state are preserved.</p>
+
+	<h2>Pre-Upgrade Checklist</h2>
+
+	<div class="callout warning">
+		Always complete these steps before upgrading to a new version.
+	</div>
+
+	<h3>Back Up the State Database</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> cp &lt;data_dir&gt;/state.db &lt;data_dir&gt;/state.db.bak-$(date +%Y%m%d)</code></pre>
+	<p>
+		Default <code>&lt;data_dir&gt;</code> is <code>/var/lib/voxeltron</code> (Linux)
+		or <code>~/Library/Application Support/voxeltron</code> (macOS).
+	</p>
+
+	<h3>Back Up Configuration</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> sudo cp /etc/voxeltron/voxeltron.toml /etc/voxeltron/voxeltron.toml.bak</code></pre>
+
+	<h3>Check Release Notes</h3>
+	<p>
+		Read the <a href="https://github.com/voxeltron/voxeltron/releases">release notes</a> for your target version.
+		Look for breaking changes, deprecated features, and state migration notes.
+	</p>
+
+	<h3>Verify Binary Checksums</h3>
+	<pre><code><span style="color: var(--color-teal);">$</span> sha256sum voxeltrond
+<span style="color: var(--color-muted)"># Compare against the checksum listed in the release assets</span></code></pre>
+
+	<h2>What Happens During an Upgrade</h2>
+
+	<div style="display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap;">
+		<div style="flex: 1; min-width: 200px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">Containers</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">Running containers are NOT interrupted. Docker keeps them alive independently of the daemon.</p>
+		</div>
+		<div style="flex: 1; min-width: 200px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">Migrations</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">State migrations run automatically on daemon startup. Idempotent and forward-only.</p>
+		</div>
+		<div style="flex: 1; min-width: 200px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; text-align: center;">
+			<strong style="color: var(--color-teal);">Connections</strong>
+			<p style="color: var(--color-text-2); margin-bottom: 0; font-size: 0.9rem;">gRPC/TUI connections drop momentarily and reconnect automatically with exponential backoff.</p>
+		</div>
+	</div>
+
+	<div class="callout tip">
+		Zero downtime for deployed services. Only the daemon management plane restarts — your apps keep running.
+	</div>
+
+	<h2>Rollback Procedure</h2>
+
+	<h3>1. Keep Previous Binaries</h3>
+	<p>Before upgrading, save your current binaries:</p>
+	<pre><code><span style="color: var(--color-teal);">$</span> sudo cp /usr/local/bin/voxeltrond /usr/local/bin/voxeltrond.prev
+<span style="color: var(--color-teal);">$</span> sudo cp /usr/local/bin/voxeltron /usr/local/bin/voxeltron.prev</code></pre>
+
+	<h3>2. Restore Previous Version</h3>
+	<pre><code><span style="color: var(--color-muted)"># Stop the daemon</span>
+<span style="color: var(--color-teal);">$</span> sudo systemctl stop voxeltrond
+
+<span style="color: var(--color-muted)"># Replace with previous binaries</span>
+<span style="color: var(--color-teal);">$</span> sudo cp /usr/local/bin/voxeltrond.prev /usr/local/bin/voxeltrond
+<span style="color: var(--color-teal);">$</span> sudo cp /usr/local/bin/voxeltron.prev /usr/local/bin/voxeltron
+
+<span style="color: var(--color-muted)"># Restore state database if migrations were applied</span>
+<span style="color: var(--color-teal);">$</span> cp &lt;data_dir&gt;/state.db.bak-YYYYMMDD &lt;data_dir&gt;/state.db
+
+<span style="color: var(--color-muted)"># Restart</span>
+<span style="color: var(--color-teal);">$</span> sudo systemctl start voxeltrond</code></pre>
+
+	<div class="callout warning">
+		The state database is forward-compatible but not backward-compatible. If the new version applied schema migrations, you <strong>must</strong> restore the database backup when rolling back.
+	</div>
+
+	<h2>Migrating from Other Platforms</h2>
+
+	<h3>From Coolify</h3>
+	<ol>
+		<li>Export application configurations and environment variables from Coolify's dashboard</li>
+		<li>Re-create projects in Voxeltron:
+			<pre><code><span style="color: var(--color-teal);">$</span> voxeltron project create --name my-app --source github.com/org/repo
+<span style="color: var(--color-teal);">$</span> voxeltron env set --project my-app KEY=value</code></pre>
+		</li>
+		<li>Point DNS records to your Voxeltron server's IP address</li>
+		<li>Voxeltron handles TLS automatically — certificates are provisioned via Let's Encrypt on first request</li>
+	</ol>
+
+	<h3>From Dokploy</h3>
+	<ol>
+		<li>Export application configs and environment variables from Dokploy</li>
+		<li>Re-create projects in Voxeltron using the TUI or gRPC API</li>
+		<li>Migrate Docker Compose files — Voxeltron deploys from Docker images directly</li>
+		<li>Update DNS records to point to your Voxeltron server</li>
+		<li>TLS certificates are provisioned automatically</li>
+	</ol>
+
+	<div class="callout tip">
+		Run both platforms in parallel during the transition. Use Voxeltron's backup system to protect the new deployment from day one.
+	</div>
+
+	<h2>Version Compatibility Matrix</h2>
+
+	<div style="overflow-x: auto;">
+		<table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+			<thead>
+				<tr style="border-bottom: 2px solid var(--color-border);">
+					<th style="text-align: left; padding: 12px 16px; color: var(--color-teal);">Daemon Version</th>
+					<th style="text-align: left; padding: 12px 16px; color: var(--color-teal);">TUI Version</th>
+					<th style="text-align: left; padding: 12px 16px; color: var(--color-teal);">Proto Version</th>
+					<th style="text-align: left; padding: 12px 16px; color: var(--color-teal);">Notes</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 10px 16px;"><code>0.1.x</code></td>
+					<td style="padding: 10px 16px;"><code>0.1.x</code></td>
+					<td style="padding: 10px 16px;">v1</td>
+					<td style="padding: 10px 16px; color: var(--color-text-2);">Initial release</td>
+				</tr>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 10px 16px;"><code>0.2.x</code></td>
+					<td style="padding: 10px 16px;"><code>0.2.x</code></td>
+					<td style="padding: 10px 16px;">v1</td>
+					<td style="padding: 10px 16px; color: var(--color-text-2);">Plugin system added</td>
+				</tr>
+				<tr style="border-bottom: 1px solid var(--color-border);">
+					<td style="padding: 10px 16px;"><code>0.3.x</code></td>
+					<td style="padding: 10px 16px;"><code>0.3.x</code></td>
+					<td style="padding: 10px 16px;">v1</td>
+					<td style="padding: 10px 16px; color: var(--color-text-2);">Database provisioning</td>
+				</tr>
+				<tr>
+					<td style="padding: 10px 16px;"><code>1.0.x</code></td>
+					<td style="padding: 10px 16px;"><code>1.0.x</code></td>
+					<td style="padding: 10px 16px;">v1</td>
+					<td style="padding: 10px 16px; color: var(--color-text-2);">Stable release (planned)</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="callout tip">
+		<strong>Rule of thumb:</strong> The TUI and daemon should always match on the <strong>minor</strong> version.
+		Patch versions can differ safely (e.g., daemon <code>0.3.2</code> works with TUI <code>0.3.0</code>).
+		Proto version changes are rare and always accompany a major version bump.
+	</div>
+</DocsLayout>

@@ -1,0 +1,158 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  currentPath?: string;
+}
+
+const { title, description, currentPath = '' } = Astro.props;
+const path = currentPath || Astro.url.pathname;
+
+const nav = [
+  {
+    section: 'get started',
+    links: [
+      { href: '/docs/getting-started', label: 'overview' },
+      { href: '/docs/installation', label: 'installation' },
+      { href: '/docs/first-deployment', label: 'first deployment' },
+      { href: '/docs/upgrading', label: 'upgrading' },
+      { href: '/docs/migration-validation', label: 'migration validation' },
+    ],
+  },
+  {
+    section: 'features',
+    links: [
+      { href: '/docs/tui', label: 'terminal ui' },
+      { href: '/docs/databases', label: 'databases' },
+      { href: '/docs/ai', label: 'ai integration' },
+      { href: '/docs/runbooks', label: 'runbooks / skills' },
+      { href: '/docs/plugins', label: 'plugin system' },
+      { href: '/docs/domains-tls', label: 'domains / tls' },
+      { href: '/docs/monitoring', label: 'monitoring / alerts' },
+      { href: '/docs/backup', label: 'backups' },
+    ],
+  },
+  {
+    section: 'reference',
+    links: [
+      { href: '/docs/configuration', label: 'configuration' },
+      { href: '/docs/ci-cd', label: 'ci/cd pipeline' },
+      { href: '/docs/cli-reference', label: 'cli reference' },
+      { href: '/docs/plugins', label: 'plugin sdk' },
+      { href: '/docs/licensing', label: 'licensing' },
+      { href: '/docs/execution-checklist', label: 'execution checklist' },
+      { href: '/docs/troubleshooting', label: 'troubleshooting' },
+      { href: '/docs/support', label: 'support' },
+      { href: '/docs/binary-verification', label: 'binary verification' },
+    ],
+  },
+];
+---
+
+<BaseLayout title={`${title} — voxeltron docs`} description={description}>
+  <!-- Nav -->
+  <header class="nav-bar">
+    <div class="max-w-screen-2xl mx-auto px-6 h-full flex items-center gap-8">
+      <a href="/" class="flex items-center gap-3 no-underline">
+        <img src="/favicon.svg" alt="" class="w-7 h-7" style="border-radius: 4px;" />
+        <div class="flex flex-col" style="gap: 1px;">
+          <span
+            style="font-family: var(--font-display); font-weight: 700; font-size: 1rem; color: var(--color-text); letter-spacing: -0.01em;"
+          >
+            voxeltron
+          </span>
+          <span
+            style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--color-muted); letter-spacing: 0.04em;"
+          >
+            ボクセルトロン
+          </span>
+        </div>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-6 ml-6">
+        <a href="/" class="nav-link">home</a>
+        <a href="/docs" class="nav-link" style="color: var(--color-text);">docs</a>
+        <a href="/#pricing" class="nav-link">pricing</a>
+        <a href="https://github.com" target="_blank" rel="noopener" class="nav-link">github</a>
+      </nav>
+
+      <div class="ml-auto">
+        <a href="/docs/installation" class="btn-solid" style="padding: 8px 20px; font-size: 0.8rem;">
+          Install
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex min-h-screen pt-[56px]" style="max-width: 1400px; margin: 0 auto;">
+    <!-- Sidebar -->
+    <aside
+      class="docs-sidebar hidden lg:block w-[240px] shrink-0 border-r px-3 py-8"
+      style="border-color: var(--color-border);"
+    >
+      {nav.map((group) => (
+        <div>
+          <div class="docs-nav-section">{group.section}</div>
+          {group.links.map((link) => (
+            <a
+              href={link.href}
+              class={`docs-nav-link ${path === link.href ? 'active' : ''}`}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      ))}
+
+      <!-- Bottom callout -->
+      <div
+        class="mt-8 p-4"
+        style="background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: 4px;"
+      >
+        <p style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-muted); margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.08em;">
+          ai assistant
+        </p>
+        <p style="font-size: 0.8rem; color: var(--color-text-secondary); margin: 0 0 8px; line-height: 1.5;">
+          Ask questions directly in the TUI —
+        </p>
+        <code style="font-size: 0.75rem; color: var(--color-accent); font-family: var(--font-mono);">
+          ctrl + a
+        </code>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 min-w-0 px-8 lg:px-16 py-12">
+      <!-- Breadcrumb -->
+      <nav style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-muted); letter-spacing: 0.04em;" class="mb-8 flex items-center gap-2">
+        <a href="/docs" style="color: var(--color-muted); text-decoration: none; transition: color 0.2s;" class="hover:text-white">docs</a>
+        <span>/</span>
+        <span style="color: var(--color-text-secondary);">{title.toLowerCase().replace(/\s+/g, '-')}</span>
+      </nav>
+
+      <article class="docs-content max-w-3xl">
+        <slot />
+      </article>
+
+      <!-- Prev/Next navigation -->
+      <div class="flex gap-4 mt-16 pt-8" style="border-top: 1px solid var(--color-border);">
+        <slot name="prev" />
+        <div class="flex-1"></div>
+        <slot name="next" />
+      </div>
+    </main>
+
+    <!-- Right TOC (optional) -->
+    <aside class="hidden xl:block w-[200px] shrink-0 py-8 px-4">
+      <slot name="toc" />
+    </aside>
+  </div>
+
+  <style>
+    @media (max-width: 1024px) {
+      main { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+  </style>
+</BaseLayout>

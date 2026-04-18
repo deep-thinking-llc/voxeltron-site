@@ -1,0 +1,83 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="CI/CD Pipeline" description="Temporary manual release mode on build-mac.">
+  <h1>CI/CD Pipeline (Temporary Manual Release Mode)</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron is temporarily running in <strong>manual release mode</strong> from <code>build-mac</code>.
+  </p>
+
+  <div class="callout warning">
+    For this short-term window, do not run Woodpecker release automation and do not use GitHub Actions as the release path.
+  </div>
+
+  <h2>Current Mode</h2>
+  <ul>
+    <li><strong>Release host:</strong> <code>build-mac</code></li>
+    <li><strong>Release entrypoint:</strong> <code>scripts/release/manual-release.sh</code></li>
+    <li><strong>Woodpecker release pipeline:</strong> paused for day-to-day release operations</li>
+    <li><strong>GitHub release workflow:</strong> manual fallback only (<code>workflow_dispatch</code>)</li>
+  </ul>
+
+  <h2>Build Host Access</h2>
+  <pre><code style="font-family: var(--font-mono);">ssh build-mac</code></pre>
+
+  <h2>Required Environment Variables</h2>
+  <ul>
+    <li><code>GH_TOKEN</code></li>
+    <li><code>DOCKER_USERNAME</code></li>
+    <li><code>DOCKER_PASSWORD</code></li>
+    <li><code>GPG_PRIVATE_KEY</code> (ASCII-armored or base64-encoded private key)</li>
+    <li><code>GPG_PASSPHRASE</code></li>
+    <li><code>GPG_KEY_ID</code></li>
+  </ul>
+
+  <h2>Manual Release Commands</h2>
+  <pre><code style="font-family: var(--font-mono);"># Full release (includes smoke gate)
+./scripts/release/manual-release.sh vX.Y.Z
+
+# Skip smoke gate (emergency only)
+./scripts/release/manual-release.sh vX.Y.Z --skip-smoke
+
+# Build artifacts without publishing
+./scripts/release/manual-release.sh vX.Y.Z --dry-run</code></pre>
+
+  <h2>Manual Release Quick Checklist</h2>
+  <p>Use this sequence for every short-term manual release:</p>
+  <ol>
+    <li>
+      Connect to <code>build-mac</code> and ensure a clean working tree:
+      <pre><code style="font-family: var(--font-mono);">ssh build-mac
+cd /path/to/voxeltron
+git status --short</code></pre>
+    </li>
+    <li>Confirm required environment variables are present (<code>GH_TOKEN</code>, Docker creds, GPG vars).</li>
+    <li>
+      Run a dry run first to build artifacts without publishing:
+      <pre><code style="font-family: var(--font-mono);">./scripts/release/manual-release.sh vX.Y.Z --dry-run</code></pre>
+    </li>
+    <li>
+      Publish the release:
+      <pre><code style="font-family: var(--font-mono);">./scripts/release/manual-release.sh vX.Y.Z</code></pre>
+    </li>
+    <li>
+      Verify integrity artifacts after publish (PASS/FAIL output):
+      <pre><code style="font-family: var(--font-mono);">./scripts/release/verify-release-artifacts.sh dist</code></pre>
+    </li>
+    <li>Confirm release assets exist on GitHub for the new tag.</li>
+  </ol>
+  <h2>Verification Expectations</h2>
+  <ol>
+    <li><code>checksums.txt</code> matches published artifacts</li>
+    <li>GPG metadata signatures verify (<code>Release.gpg</code>, <code>repomd.xml.asc</code>)</li>
+    <li>Release includes expected assets (<code>.tar.gz</code>, <code>.deb</code>, <code>.rpm</code>, SBOMs, repo snapshots, signing key)</li>
+  </ol>
+
+  <h2>Exit Criteria for Manual Mode</h2>
+  <ol>
+    <li>Woodpecker release pipeline validated end-to-end on <code>build-mac</code></li>
+    <li>Secret management stable</li>
+    <li>A dry-run and one successful tagged release completed with verification evidence</li>
+  </ol>
+</DocsLayout>

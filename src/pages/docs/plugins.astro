@@ -1,0 +1,162 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Plugin System" description="Extend Voxeltron with WASM and JS plugins.">
+  <h1>Plugin System</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron has a dual-tier plugin system. Tier 1 runs WASM-compiled plugins in a sandboxed runtime.
+    Tier 2 runs JavaScript/TypeScript plugins in a Bun sidecar. Both are hot-reloadable without restarting the daemon.
+  </p>
+
+  <div class="callout info">
+    All plugins declare their required capabilities in a <code>plugin.toml</code> manifest.
+    You must explicitly grant each capability at install time. Nothing runs silently.
+  </div>
+
+  <h2>Plugin Tiers</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;">
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-teal); text-transform: uppercase; margin-bottom: 8px;">Tier 1 — WASM</div>
+      <ul style="padding-left: 16px; font-size: 0.875rem; color: var(--color-text-2);">
+        <li>Any WASM-compilable language</li>
+        <li>Rust, Go, C, AssemblyScript</li>
+        <li>Sandboxed via wasmtime + Extism</li>
+        <li>64MB memory cap</li>
+        <li>10s wall-clock timeout per call</li>
+        <li>Best for: performance-critical, trusted plugins</li>
+      </ul>
+    </div>
+    <div style="padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;">
+      <div style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-purple); text-transform: uppercase; margin-bottom: 8px;">Tier 2 — JS/TS</div>
+      <ul style="padding-left: 16px; font-size: 0.875rem; color: var(--color-text-2);">
+        <li>JavaScript or TypeScript</li>
+        <li>Runs in a Bun sidecar process</li>
+        <li>JSON-RPC over Unix domain socket</li>
+        <li>Hot-reload without daemon restart</li>
+        <li>Best for: rapid development, scripting</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Available Capabilities</h2>
+
+  <div style="margin: 20px 0; overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 0.875rem;">
+      <thead>
+        <tr style="background: var(--color-surface-2);">
+          <th style="padding: 10px 16px; text-align: left; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;">Capability</th>
+          <th style="padding: 10px 16px; text-align: left; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;">What it allows</th>
+          <th style="padding: 10px 16px; text-align: left; color: var(--color-text-2); font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase;">Risk</th>
+        </tr>
+      </thead>
+      <tbody>
+        {[
+          ['fs_read',         'Read files in the Voxeltron data dir',           'Low'],
+          ['fs_write',        'Write files in the Voxeltron data dir',          'Medium'],
+          ['network_outbound','Make outbound HTTP/TCP calls',                   'Medium'],
+          ['docker_read',     'Read container state and metadata',              'Low'],
+          ['docker_write',    'Create/stop/modify containers',                  'High'],
+          ['secrets_read',    'Read decrypted environment variable values',     'High'],
+          ['metrics_read',    'Read service metrics',                           'Low'],
+          ['logs_read',       'Read service logs',                              'Low'],
+          ['notify_send',     'Send alerts (email, Slack, webhook)',             'Medium'],
+        ].map(([cap, desc, risk]) => (
+          <tr style="border-bottom: 1px solid var(--color-border);">
+            <td style="padding: 10px 16px;"><code style="font-size: 0.8rem;">{cap}</code></td>
+            <td style="padding: 10px 16px; color: var(--color-text-2);">{desc}</td>
+            <td style="padding: 10px 16px;">
+              <span style={`font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; font-family: var(--font-mono); background: ${risk === 'Low' ? 'var(--color-lime-faint)' : risk === 'Medium' ? 'var(--color-amber-faint)' : 'var(--color-pink-faint)'}; color: ${risk === 'Low' ? 'var(--color-lime)' : risk === 'Medium' ? 'var(--color-amber)' : 'var(--color-pink)'};`}>
+                {risk}
+              </span>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Plugin Hooks</h2>
+
+  <p>Plugins respond to lifecycle hooks fired by the daemon:</p>
+
+  <ul>
+    <li><code>on_deploy_start</code> — fires when a deploy begins</li>
+    <li><code>on_deploy_success</code> — fires on successful deploy</li>
+    <li><code>on_deploy_fail</code> — fires when a deploy fails</li>
+    <li><code>on_cert_renew</code> — fires when a TLS cert is renewed</li>
+    <li><code>on_backup_complete</code> — fires after each backup</li>
+    <li><code>on_alert</code> — fires when a monitoring alert triggers</li>
+  </ul>
+
+  <h2>Writing a JS Plugin</h2>
+
+  <p>Create a directory with two files:</p>
+
+  <pre><code><span style="color: var(--color-muted)"># plugin.toml</span>
+[plugin]
+name = "deploy-notifier"
+version = "1.0.0"
+description = "Posts a Slack message on every deploy"
+tier = 2  # JS plugin
+
+[capabilities]
+required = ["notify_send", "logs_read"]
+
+[hooks]
+on_deploy_success = true
+on_deploy_fail = true</code></pre>
+
+  <pre><code><span style="color: var(--color-muted"># index.ts</span>
+import type &#123; VoxeltronPlugin, DeployEvent &#125; from "@voxeltron/sdk";
+
+const plugin: VoxeltronPlugin = &#123;
+  async on_deploy_success(event: DeployEvent) &#123;
+    await fetch("https://hooks.slack.com/...", &#123;
+      method: "POST",
+      body: JSON.stringify(&#123;
+        text: `✅ $&#123;event.service&#125; deployed to $&#123;event.domain&#125;`,
+      &#125;),
+    &#125;);
+  &#125;,
+
+  async on_deploy_fail(event: DeployEvent) &#123;
+    await fetch("https://hooks.slack.com/...", &#123;
+      method: "POST",
+      body: JSON.stringify(&#123;
+        text: `❌ $&#123;event.service&#125; deploy failed: $&#123;event.error&#125;`,
+      &#125;),
+    &#125;);
+  &#125;,
+&#125;;
+
+export default plugin;</code></pre>
+
+  <h2>Install a Plugin</h2>
+
+  <pre><code><span style="color: var(--color-muted)"># From the marketplace</span>
+<span style="color: var(--color-teal);">$</span> voxeltron plugin install deploy-notifier
+
+Plugin: deploy-notifier v1.0.0
+Requires capabilities:
+  • notify_send (Medium risk)
+  • logs_read (Low risk)
+
+Grant these capabilities? [y/N]: y
+<span style="color: var(--color-lime);">✓</span> Plugin installed and enabled
+
+<span style="color: var(--color-muted)"># From a local directory</span>
+<span style="color: var(--color-teal);">$</span> voxeltron plugin install ./my-plugin/</code></pre>
+
+  <fragment slot="prev">
+    <a href="/docs/runbooks" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      &larr; Runbooks &amp; Skills
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/domains-tls" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Domains &amp; TLS →
+    </a>
+  </fragment>
+</DocsLayout>

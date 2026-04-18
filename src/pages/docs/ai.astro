@@ -1,0 +1,263 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="AI Integration" description="Use the AI panel in Voxeltron TUI.">
+  <h1>AI Integration</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron has a built-in AI panel powered by <strong>Crush</strong> (Charmbracelet's AI toolkit).
+    Hit <code>ctrl+a</code> in the TUI and ask your AI anything about your infrastructure.
+    It can see your logs, config, and deploy history — and it can actually take action.
+  </p>
+
+  <div class="callout tip">
+    The AI runs in an <em>agentic mode</em>: it can propose and execute actions (deploy, rollback,
+    scale, rotate certs) with your confirmation on each step. Think of it as a DevOps engineer
+    that lives in your terminal and never needs a coffee break.
+  </div>
+
+  <h2>Supported Models</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+    {[
+      { name: 'Claude 3.5 Sonnet', provider: 'Anthropic', note: 'Recommended — best reasoning' },
+      { name: 'GPT-4o', provider: 'OpenAI', note: 'Strong alternative' },
+      { name: 'Gemini 1.5 Pro', provider: 'Google', note: 'Large context window' },
+      { name: 'Ollama (local)', provider: 'Self-hosted', note: 'No API key needed, runs locally' },
+    ].map((model) => (
+      <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">{model.name}</div>
+        <div style="font-size: 0.8rem; color: var(--color-teal); margin: 2px 0;">{model.provider}</div>
+        <div style="font-size: 0.8rem; color: var(--color-text-2);">{model.note}</div>
+      </div>
+    ))}
+  </div>
+
+  <h2>Configure the AI Panel</h2>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron ai configure
+
+? Provider: Anthropic
+? API key: (hidden input)
+? Model: claude-3-5-sonnet-20241022
+? Max tokens per request: 4096
+
+<span style="color: var(--color-lime);">✓</span> AI configured. Press ctrl+a in the TUI to open the panel.</code></pre>
+
+  <p>Or edit the config file directly:</p>
+
+  <pre><code><span style="color: var(--color-muted)"># ~/.config/voxeltron/config.toml</span>
+[ai]
+provider = "anthropic"
+model = "claude-3-5-sonnet-20241022"
+api_key_env = "ANTHROPIC_API_KEY"  <span style="color: var(--color-muted)"># reads from env var</span>
+max_tokens = 4096
+agentic = true</code></pre>
+
+  <h2>Using the AI Panel</h2>
+
+  <p>In the TUI, press <code>ctrl+a</code>. The panel opens with context already loaded:</p>
+
+  <pre><code style="color: var(--color-blue);">┌─ Voxeltron AI ────────────────────────────────────────────┐
+│ Context loaded:                                           │
+│   • web-app: last 50 log lines                            │
+│   • web-app: config, env vars (values redacted), health   │
+│   • Deploy history: last 5 deploys                        │
+│                                                           │
+│ > _                                                       │
+└───────────────────────────────────────────────────────────┘</code></pre>
+
+  <h3>Example queries</h3>
+
+  <ul>
+    <li><code>why is web-app using so much memory?</code></li>
+    <li><code>show me errors from the last hour</code></li>
+    <li><code>roll back to yesterday's deploy</code></li>
+    <li><code>add a health check endpoint and redeploy</code></li>
+    <li><code>my postgres is slow — check the logs and suggest indexes</code></li>
+    <li><code>rotate the TLS cert for api.example.com</code></li>
+  </ul>
+
+  <h3>Agentic actions</h3>
+
+  <p>When the AI wants to take action, it asks for confirmation:</p>
+
+  <pre><code style="color: var(--color-blue);">AI: I can see web-app has been OOMing every 4h.
+    The memory limit is 256MB but the Node.js heap
+    is growing to 280MB before the OOM killer hits.
+
+    I recommend increasing the memory limit to 512MB
+    and adding --max-old-space-size=400 to NODE_OPTIONS.
+
+    Proposed action:
+      voxeltron service update web-app --memory 512mb
+      voxeltron env set web-app NODE_OPTIONS="--max-old-space-size=400"
+      voxeltron redeploy web-app
+
+<span style="color: var(--color-amber);">    Execute these 3 actions? [y/N]:</span> y
+
+<span style="color: var(--color-lime);">✓</span> Memory limit updated
+<span style="color: var(--color-lime);">✓</span> Environment variable set
+<span style="color: var(--color-lime);">✓</span> Zero-downtime redeploy complete</code></pre>
+
+  <div class="callout warn">
+    The AI never takes action without your explicit <code>y</code> confirmation. Each proposed
+    action is shown clearly before execution. You can review and reject individual steps.
+  </div>
+
+  <h2>BYOK vs Cloud Quota</h2>
+
+  <p>You can always bring your own API key (BYOK) — the AI panel works entirely on the client side.
+  Pro and Teams plans also include a monthly token quota via Voxeltron Cloud if you don't want to manage keys:</p>
+
+  <pre><code><span style="color: var(--color-muted)"># Use your own key (free, unlimited)</span>
+<span style="color: var(--color-teal);">$</span> ANTHROPIC_API_KEY=sk-... voxeltron
+
+<span style="color: var(--color-muted)"># Use Voxeltron Cloud quota (Pro/Teams)</span>
+<span style="color: var(--color-teal);">$</span> voxeltron ai auth login  <span style="color: var(--color-muted)"># authenticates with Voxeltron Cloud</span></code></pre>
+
+  <h2>AI Tool Registry</h2>
+
+  <p>The AI panel has access to <strong>10 built-in tools</strong> that let it inspect and act on your infrastructure.
+  Tools are organized by permission level — the AI can only use tools within the grant configured for your project:</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+    <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+      <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">Read</div>
+      <div style="font-size: 0.8rem; color: var(--color-teal); margin: 4px 0;">Observe only, no side effects</div>
+      <div style="font-size: 0.85rem; color: var(--color-text-2);">
+        <code>query_logs</code> <code>query_metrics</code> <code>list_alerts</code> <code>project_status</code> <code>list_deployments</code>
+      </div>
+    </div>
+    <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+      <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">Safe</div>
+      <div style="font-size: 0.8rem; color: var(--color-teal); margin: 4px 0;">Recoverable actions</div>
+      <div style="font-size: 0.85rem; color: var(--color-text-2);">
+        <code>container_action</code> (restart) <code>create_backup</code>
+      </div>
+    </div>
+    <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+      <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">Deploy</div>
+      <div style="font-size: 0.8rem; color: var(--color-teal); margin: 4px 0;">Service-affecting changes</div>
+      <div style="font-size: 0.85rem; color: var(--color-text-2);">
+        <code>scale_service</code> <code>rollback</code>
+      </div>
+    </div>
+    <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+      <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">Full</div>
+      <div style="font-size: 0.8rem; color: var(--color-teal); margin: 4px 0;">Security-sensitive operations</div>
+      <div style="font-size: 0.85rem; color: var(--color-text-2);">
+        <code>rotate_secret</code>
+      </div>
+    </div>
+  </div>
+
+  <p>Set the tool permission level per project in your config:</p>
+
+  <pre><code><span style="color: var(--color-muted)"># ~/.config/voxeltron/config.toml</span>
+[ai.tools]
+grant = "safe"  <span style="color: var(--color-muted)"># one of: read, safe, deploy, full</span></code></pre>
+
+  <p>When the AI invokes a tool, you see exactly what it does:</p>
+
+  <pre><code style="color: var(--color-blue);">AI: Checking the current state of web-app.
+
+<span style="color: var(--color-muted)">   tool: query_logs project=web-app lines=50 severity=error</span>
+
+   I found 23 OOM errors in the last hour. Let me check the
+   memory metrics.
+
+<span style="color: var(--color-muted)">   tool: query_metrics project=web-app metric=memory_usage range=1h</span>
+
+   Memory usage is averaging 245MB against a 256MB limit.
+   The container is being OOM-killed roughly every 15 minutes.</code></pre>
+
+  <h2>Skills (Multi-Step Workflows)</h2>
+
+  <p>Skills are <strong>multi-step workflows</strong> that chain multiple tool calls together to solve
+  common operational tasks. Each skill defines a sequence of steps, handles errors, and streams
+  real-time progress to the TUI.</p>
+
+  <p>Voxeltron ships with <strong>4 built-in skills</strong>:</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;">
+    {[
+      { name: 'health-check', desc: 'Full-stack health sweep: container status, resource usage, endpoint latency, recent errors' },
+      { name: 'deployment-analysis', desc: 'Analyze a deploy: diff changes, check rollout status, compare error rates before and after' },
+      { name: 'log-investigation', desc: 'Structured log triage: pattern detection, error correlation, root cause suggestions' },
+      { name: 'cost-optimizer', desc: 'Identify over-provisioned services, idle containers, and potential savings' },
+    ].map((skill) => (
+      <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">{skill.name}</div>
+        <div style="font-size: 0.85rem; color: var(--color-text-2); margin-top: 4px;">{skill.desc}</div>
+      </div>
+    ))}
+  </div>
+
+  <p>Trigger a skill by asking the AI, or run it directly:</p>
+
+  <pre><code style="color: var(--color-blue);">AI: Running skill: <span style="color: var(--color-teal)">health-check</span> on web-app
+
+<span style="color: var(--color-lime)">+</span> Check container status ........... <span style="color: var(--color-lime)">running</span>
+<span style="color: var(--color-lime)">+</span> Check resource usage ............. <span style="color: var(--color-amber)">memory 94%</span>
+<span style="color: var(--color-lime)">+</span> Check endpoint latency ........... <span style="color: var(--color-lime)">p99 120ms</span>
+<span style="color: var(--color-lime)">+</span> Scan recent errors ............... <span style="color: var(--color-amber)">23 OOM events</span>
+
+Summary: web-app is functionally healthy but under memory pressure.
+  Recommendation: increase memory limit from 256MB to 512MB.</code></pre>
+
+  <p>Progress streams in real-time — each step appears as it completes, so you always know
+  where the skill is in its workflow.</p>
+
+  <h2>Runbooks (Approval-Gated Automation)</h2>
+
+  <p>Runbooks extend skills with <strong>approval gates</strong> and <strong>automatic rollback</strong>.
+  They are designed for operations that make real changes to your infrastructure and need
+  human sign-off before each destructive step.</p>
+
+  <p>Voxeltron ships with <strong>3 built-in runbooks</strong>:</p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 20px 0;">
+    {[
+      { name: 'disk-cleanup', desc: 'Find and remove dangling images, old build layers, and unused volumes' },
+      { name: 'restart-loop-detection', desc: 'Detect crash-looping containers, diagnose root cause, apply fixes' },
+      { name: 'certificate-expiry-renewal', desc: 'Check TLS cert expiry, trigger ACME renewal, verify new cert' },
+    ].map((rb) => (
+      <div style="padding: 16px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.9rem; color: var(--color-text);">{rb.name}</div>
+        <div style="font-size: 0.85rem; color: var(--color-text-2); margin-top: 4px;">{rb.desc}</div>
+      </div>
+    ))}
+  </div>
+
+  <p>Every runbook step that modifies state pauses for your approval. If you reject a step,
+  the runbook rolls back any changes it already made:</p>
+
+  <pre><code style="color: var(--color-blue);">Runbook: <span style="color: var(--color-teal)">disk-cleanup</span>
+  <span style="color: var(--color-lime)">+</span> Identify old images ............. Found 12 dangling images
+  <span style="color: var(--color-muted)">&gt;</span> Delete old images ...
+
+  <span style="color: var(--color-border)">+--------------------------------------------------+</span>
+  <span style="color: var(--color-border)">|</span> <span style="color: var(--color-amber)">Approval required:</span> Delete old images              <span style="color: var(--color-border)">|</span>
+  <span style="color: var(--color-border)">|</span> This will free 5GB                                 <span style="color: var(--color-border)">|</span>
+  <span style="color: var(--color-border)">|</span> <span style="color: var(--color-lime)">[y] Approve</span>  <span style="color: var(--color-muted)">[n] Reject</span>                        <span style="color: var(--color-border)">|</span>
+  <span style="color: var(--color-border)">+--------------------------------------------------+</span></code></pre>
+
+  <div class="callout warn">
+    Runbook approval gates are mandatory and cannot be bypassed. Every destructive action requires
+    an explicit <code>[y]</code> before the runbook proceeds. Rejecting a step triggers automatic
+    rollback of prior changes in that runbook session.
+  </div>
+
+  <fragment slot="prev">
+    <a href="/docs/databases" style="color: var(--color-muted); text-decoration: none; font-size: 0.9rem;">
+      ← Databases
+    </a>
+  </fragment>
+
+  <fragment slot="next">
+    <a href="/docs/runbooks" style="color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Runbooks & Skills →
+    </a>
+  </fragment>
+</DocsLayout>

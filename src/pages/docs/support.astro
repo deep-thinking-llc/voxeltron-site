@@ -1,0 +1,46 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Support" description="Support channels, severity targets, and escalation process.">
+  <h1>Support</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Use this process to report bugs, request help, and escalate incidents with actionable evidence.
+  </p>
+
+  <h2>Before opening an issue</h2>
+  <pre><code style="font-family: var(--font-mono);">voxeltrond --version
+voxeltron --version
+sudo journalctl -u voxeltrond -n 300 --no-pager</code></pre>
+
+  <h2>Support channels</h2>
+  <ul>
+    <li>GitHub Issues — reproducible defects</li>
+    <li>GitHub Discussions — questions/design feedback</li>
+    <li>Discord — quick operator support</li>
+  </ul>
+
+  <h2>Severity targets (guideline)</h2>
+  <table>
+    <thead>
+      <tr><th>Severity</th><th>Example</th><th>Initial Response Target</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>S1</td><td>Complete outage/data loss risk</td><td>4 hours</td></tr>
+      <tr><td>S2</td><td>Deployment blocked for one service</td><td>1 business day</td></tr>
+      <tr><td>S3</td><td>Non-blocking bug/workaround exists</td><td>3 business days</td></tr>
+      <tr><td>S4</td><td>Docs/usability issue</td><td>5 business days</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Security reporting</h2>
+  <div class="callout warning">
+    Do not post sensitive security vulnerabilities publicly. Use responsible disclosure channels.
+  </div>
+
+  <h2>Feedback incorporation log</h2>
+  <p>
+    Track accepted feedback and implementation mapping in
+    <code>docs/evidence/community/2026-02-26-feedback.md</code>.
+  </p>
+</DocsLayout>

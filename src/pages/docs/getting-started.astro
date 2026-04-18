@@ -1,0 +1,119 @@
+---
+import DocsLayout from '../../layouts/DocsLayout.astro';
+---
+
+<DocsLayout title="Getting Started" description="Get Voxeltron running in under 60 seconds.">
+  <h1>Getting Started</h1>
+  <p style="color: var(--color-text-2); font-size: 1.1rem; margin-bottom: 32px;">
+    Voxeltron is a two-binary system: <code>voxeltrond</code> (the Rust daemon that runs on your server)
+    and <code>voxeltron</code> (the Go TUI you use to manage it). This guide gets you from zero to a running deploy.
+  </p>
+
+  <div class="callout tip">
+    <strong>No browser required.</strong> Voxeltron is managed entirely from your terminal via gRPC over TLS.
+    Your web browser is not invited. It's for the best.
+  </div>
+
+  <h2>What you'll need</h2>
+
+  <ul>
+    <li>A Linux server (Debian/Ubuntu/Fedora/Arch — anything with Docker and systemd)</li>
+    <li>Docker 24+ installed on the server</li>
+    <li>A terminal on your local machine (macOS, Linux, or WSL2)</li>
+    <li>Ports 80, 443, and 7443 open on the server firewall</li>
+    <li>A domain name pointed at your server (for TLS)</li>
+  </ul>
+
+  <div class="callout info">
+    Port 7443 is the gRPC management port. It never needs to be exposed publicly —
+    you can tunnel it via SSH or put it behind a firewall. Port 80 and 443 are for your apps.
+  </div>
+
+  <h2>Quick Install</h2>
+
+  <p>The fastest path: run the installer on your server.</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> curl -sSL https://voxeltron.dthink.ai/install.sh | bash</code></pre>
+
+  <p>This installs both <code>voxeltrond</code> and <code>voxeltron</code> to <code>/usr/local/bin</code>.
+  The installer detects your OS and pulls the correct binary.</p>
+
+  <p>You can verify the install:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron --version
+voxeltron v1.0.0 (go1.22, linux/amd64)
+
+<span style="color: var(--color-teal);">$</span> voxeltrond --version
+voxeltrond v1.0.0 (rust 1.82, linux/amd64)</code></pre>
+
+  <h2>Start the daemon</h2>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltrond start
+<span style="color: var(--color-lime);">✓</span> Daemon started
+<span style="color: var(--color-lime);">✓</span> gRPC listening on 0.0.0.0:7443 (TLS)
+<span style="color: var(--color-lime);">✓</span> Reverse proxy listening on 0.0.0.0:80 and 0.0.0.0:443
+<span style="color: var(--color-lime);">✓</span> State stored at /var/lib/voxeltrond/</code></pre>
+
+  <p>For production use, the installer creates a systemd service. Enable it:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> sudo systemctl enable --now voxeltrond</code></pre>
+
+  <h2>Connect the TUI</h2>
+
+  <p>On your local machine (or the server itself), launch the TUI:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron
+<span style="color: var(--color-lime);">✓</span> Connected to voxeltrond v1.0.0 at localhost:7443
+  0 services running · uptime 0m · 2 CPUs · 2.0 GB RAM</code></pre>
+
+  <p>If connecting from a remote machine, pass the host:</p>
+
+  <pre><code><span style="color: var(--color-teal);">$</span> voxeltron --host my-server.example.com:7443</code></pre>
+
+  <div class="callout tip">
+    The TUI uses Vim-style keybindings. Press <code>?</code> at any time to see the help overlay.
+    Press <code>q</code> to go back. Press <code>ctrl+a</code> to open the AI panel.
+  </div>
+
+  <h2>What's next?</h2>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px;">
+    {[
+      { href: '/docs/installation', emoji: '📦', title: 'Full Installation Guide', body: 'Detailed install for different platforms, from source, and post-install verification.' },
+      { href: '/docs/first-deployment', emoji: '🚀', title: 'Your First Deployment', body: 'Deploy a Docker image or a GitHub repo to your server in under 5 minutes.' },
+      { href: '/docs/databases', emoji: '🗄️', title: 'Databases', body: 'Provision and manage Postgres, MySQL, Redis, and MongoDB from the TUI.' },
+      { href: '/docs/ai', emoji: '🤖', title: 'AI Integration', body: 'Connect the AI panel to your preferred model and let it fix your infra.' },
+    ].map((card) => (
+      <a
+        href={card.href}
+        style="
+          display: block;
+          padding: 20px;
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: 10px;
+          text-decoration: none;
+          transition: all 0.2s ease;
+        "
+        class="hover-card"
+      >
+        <div style="font-size: 1.5rem; margin-bottom: 8px;">{card.emoji}</div>
+        <div style="font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; color: var(--color-text); margin-bottom: 4px;">{card.title}</div>
+        <div style="font-size: 0.825rem; color: var(--color-text-2); line-height: 1.5;">{card.body}</div>
+      </a>
+    ))}
+  </div>
+
+  <fragment slot="next">
+    <a href="/docs/installation" style="display: flex; align-items: center; gap: 8px; color: var(--color-teal); text-decoration: none; font-size: 0.9rem;">
+      Installation →
+    </a>
+  </fragment>
+</DocsLayout>
+
+<style>
+  .hover-card:hover {
+    border-color: var(--color-teal-dim);
+    transform: translateY(-2px);
+  }
+</style>
