@@ -30,7 +30,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 
   <div class="callout info">
     Always inspect installer scripts before running them. You can view the source at
-    <a href="https://github.com">github.com/voxeltron/voxeltron</a>.
+    <a href="https://github.com/deep-thinking-llc/voxeltron">github.com/deep-thinking-llc/voxeltron</a>.
     Or use Method 2 below for a manual install.
   </div>
 
@@ -42,11 +42,11 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
       <h3>Download the binaries</h3>
       <p>Find the latest release on GitHub and download for your platform:</p>
       <pre><code><span style="color: var(--color-muted);"># Linux x86_64 (most servers)</span>
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltrond-linux-x86_64.tar.gz
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltron-linux-x86_64.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/latest/download/voxeltrond-linux-x86_64.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/latest/download/voxeltron-linux-x86_64.tar.gz
 
 <span style="color: var(--color-muted);"># macOS (for local TUI only)</span>
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/voxeltron-darwin-arm64.tar.gz</code></pre>
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/latest/download/voxeltron-darwin-arm64.tar.gz</code></pre>
     </div>
   </div>
 
@@ -54,7 +54,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
     <div class="step-number">2</div>
     <div class="step-content">
       <h3>Verify the checksums</h3>
-      <pre><code><span style="color: var(--color-teal);">$</span> curl -LO https://github.com/voxeltron/voxeltron/releases/latest/download/SHA256SUMS
+      <pre><code><span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/latest/download/SHA256SUMS
 <span style="color: var(--color-teal);">$</span> sha256sum --check SHA256SUMS --ignore-missing</code></pre>
     </div>
   </div>
@@ -104,7 +104,7 @@ EOF
 
   <pre><code><span style="color: var(--color-muted);"># Prerequisites: Rust 1.82+, Go 1.22+</span>
 
-<span style="color: var(--color-teal);">$</span> git clone https://github.com/voxeltron/voxeltron
+<span style="color: var(--color-teal);">$</span> git clone https://github.com/deep-thinking-llc/voxeltron
 <span style="color: var(--color-teal);">$</span> cd voxeltron
 
 <span style="color: var(--color-muted);"># Build the daemon</span>
@@ -121,10 +121,10 @@ EOF
 
   <h3>APT (Debian/Ubuntu)</h3>
   <pre><code><span style="color: var(--color-muted);"># Download snapshot + metadata + signing key from a release</span>
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-repo.tar.gz
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release.gpg
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-repo.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-apt-Release.gpg
 
 <span style="color: var(--color-muted);"># Verify metadata signature</span>
 <span style="color: var(--color-teal);">$</span> gpg --import voxeltron-signing-key.asc
@@ -139,10 +139,10 @@ EOF
 
   <h3>DNF (Fedora/RHEL)</h3>
   <pre><code><span style="color: var(--color-muted);"># Download snapshot + metadata + signing key from a release</span>
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repo.tar.gz
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml
-<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/jaikoo/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml.asc
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repo.tar.gz
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-signing-key.asc
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml
+<span style="color: var(--color-teal);">$</span> curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/vX.Y.Z/voxeltron-rpm-repomd.xml.asc
 
 <span style="color: var(--color-muted);"># Verify metadata signature</span>
 <span style="color: var(--color-teal);">$</span> gpg --import voxeltron-signing-key.asc

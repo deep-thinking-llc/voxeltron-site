@@ -14,7 +14,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 		artifacts. To verify a downloaded binary:
 	</p>
 	<pre><code style="font-family: var(--font-mono);"># Download the checksums file for your release
-curl -LO https://github.com/jaikoo/voxeltron/releases/download/v0.1.0/checksums.txt
+curl -LO https://github.com/deep-thinking-llc/voxeltron/releases/download/v0.1.0/checksums.txt
 
 # Verify all downloaded artifacts against the checksums
 sha256sum --check checksums.txt</code></pre>
@@ -32,7 +32,7 @@ sha256sum voxeltrond-linux-amd64.tar.gz
 
 	<div class="callout warning">
 		If the hashes do not match, do not use the binary. Re-download from the official
-		<a href="https://github.com/jaikoo/voxeltron/releases">GitHub Releases</a> page and verify again.
+		<a href="https://github.com/deep-thinking-llc/voxeltron/releases">GitHub Releases</a> page and verify again.
 	</div>
 
 	<h2>Cosign Verification <span style="color: var(--color-muted); font-size: 0.75em; font-weight: 400;">GitHub fallback releases</span></h2>
@@ -44,7 +44,7 @@ sha256sum voxeltrond-linux-amd64.tar.gz
 	<pre><code style="font-family: var(--font-mono);">cosign verify-blob \
 	  --signature checksums.txt.sig \
 	  --certificate checksums.txt.pem \
-	  --certificate-identity-regexp "https://github.com/jaikoo/voxeltron/.github/workflows/release.yml@refs/tags/v.*" \
+	  --certificate-identity-regexp "https://github.com/deep-thinking-llc/voxeltron/.github/workflows/release.yml@refs/tags/v.*" \
 	  --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \
 	  checksums.txt</code></pre>
 	<p>Then validate artifact hashes:</p>
